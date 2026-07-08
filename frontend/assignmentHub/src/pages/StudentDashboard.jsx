@@ -1,11 +1,15 @@
-import React from 'react';
+import { Outlet } from "react-router-dom";
+import DashboardLayouts from "../components/layouts/DashboardLayouts";
 
 const StudentDashboard = () => {
-    return (
-        <div>
-            <h1>Students Dashboard</h1>
-        </div>
-    );
-}
+
+  return (
+    <div className="bg-[#41455E]">
+      <DashboardLayouts>
+        <Outlet />
+      </DashboardLayouts>
+    </div>
+  );
+};
 
 export default StudentDashboard;

@@ -1,11 +1,13 @@
-import React from 'react';
+import { Outlet } from "react-router-dom";
+import DashboardLayout from "../components/layouts/DashboardLayouts";
+import { useAuth } from "../context/AuthProvider";
 
 const LecturerDashboard = () => {
-    return (
-        <div>
-            <h1>Lecturer Dashboard</h1>
-        </div>
-    );
-}
+  return (
+    <DashboardLayout>
+      <Outlet />
+    </DashboardLayout>
+  );
+};
 
 export default LecturerDashboard;

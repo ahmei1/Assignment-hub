@@ -1,10 +1,18 @@
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 
-const DashboardLayouts = () => {
-    return (
-        <div>
-            <h1>dashboard</h1>
-        </div>
-    );
-}
+const DashboardLayout = ({ children }) => {
+  return (
+    <div className="flex">
+      <Sidebar />
 
-export default DashboardLayouts;
+      <div className="flex-1">
+        <Navbar />
+
+        <main className="p-6">{children}</main>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardLayout;

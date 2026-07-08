@@ -1,18 +1,61 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "../pages/Login";
-import Register from "../pages/Register";
-import LecturerDashboard from "../pages/LecturerDashboard";
-import StudentDashboard from "../pages/StudentDashboard";
+import { lazy, Suspense } from "react";
+const Login = lazy(() => import("../pages/Login"));
+const Register = lazy(() => import("../pages/Register"));
+const LecturerDashboard = lazy(() => import("../pages/LecturerDashboard"));
+const StudentDashboard = lazy(() => import("../pages/StudentDashboard"));
+import ProtectedRoute from "./ProtectedRoute";
+import NotFound from "../pages/NotFound";
+import Loader from "../components/Loader";
+import Assignment from "../components/student/Assignment";
+import Profile from "../components/student/Profile";
+import SDashboard from "../components/student/SDashboard";
+import Submissions from "../components/student/Submissions";
+import MyCourses from "../components/student/MyCourses";
+import LDashboard from "../components/lecturer/LDashboard";
+import LecturerSubmissions from "../components/lecturer/LecturerSubmissions";
+import CreateAssignment from "../components/lecturer/CreateAssignment";
+import LecturerCourses from "../components/lecturer/LecturerCourses";
+
 const AppRouter = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/lecturerDashboard" element={<LecturerDashboard />} />
-        <Route path="/studentDashboard" element={<StudentDashboard />} />
-      </Routes>
-    </BrowserRouter>
+    <Suspense fallback={<Loader />}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/lecturerDashboard"
+            element={
+              <ProtectedRoute role="lecturer">
+                <LecturerDashboard />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<LDashboard />} />
+            <Route path="submissions" element={<LecturerSubmissions />} />
+            <Route path="createAssignment" element={<CreateAssignment />} />
+            <Route path="lecturerCourses" element={<LecturerCourses />} />
+            <Route path="lectureSubmissions" element={<LecturerSubmissions />} />
+          </Route>
+          <Route
+            path="/studentDashboard"
+            element={
+              <ProtectedRoute role="student">
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<SDashboard />} />
+            <Route path="assignments" element={<Assignment />} />
+            <Route path="mycourses" element={<MyCourses />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="submissions" element={<Submissions />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </Suspense>
   );
 };
 
