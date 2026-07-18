@@ -28,3 +28,11 @@ body{
     linear-gradient(-150deg, var(--_l)) #55897c /* third color here */;
   background-size: calc(0.866 * var(--s)) var(--s);
 }
+
+html {
+  /* Enables native smooth scrolling for anchor links and jumps */
+  scroll-behavior: smooth; 
+  /* Prevents standard page jitter on iOS devices */
+  -webkit-overflow-scrolling: touch; 
+}
+

@@ -10,12 +10,14 @@ import Loader from "../components/Loader";
 import Assignment from "../components/student/Assignment";
 import Profile from "../components/student/Profile";
 import SDashboard from "../components/student/SDashboard";
-import Submissions from "../components/student/Submissions";
 import MyCourses from "../components/student/MyCourses";
 import LDashboard from "../components/lecturer/LDashboard";
 import LecturerSubmissions from "../components/lecturer/LecturerSubmissions";
 import CreateAssignment from "../components/lecturer/CreateAssignment";
 import LecturerCourses from "../components/lecturer/LecturerCourses";
+import CourseDetails from "../components/student/CourseDetails";
+import DiscoverCourses from "../components/student/DiscoverCourses";
+import AssignmentDetail from "../components/student/AssignmentDetail";
 
 const AppRouter = () => {
   return (
@@ -36,7 +38,10 @@ const AppRouter = () => {
             <Route path="submissions" element={<LecturerSubmissions />} />
             <Route path="createAssignment" element={<CreateAssignment />} />
             <Route path="lecturerCourses" element={<LecturerCourses />} />
-            <Route path="lectureSubmissions" element={<LecturerSubmissions />} />
+            <Route
+              path="lectureSubmissions"
+              element={<LecturerSubmissions />}
+            />
           </Route>
           <Route
             path="/studentDashboard"
@@ -48,9 +53,11 @@ const AppRouter = () => {
           >
             <Route index element={<SDashboard />} />
             <Route path="assignments" element={<Assignment />} />
+            <Route path="assignments/:id" element={<AssignmentDetail />} />
             <Route path="mycourses" element={<MyCourses />} />
+            <Route path="discoverCourses" element={<DiscoverCourses />} />
+            <Route path="mycourses/:id" element={<CourseDetails />} />
             <Route path="profile" element={<Profile />} />
-            <Route path="submissions" element={<Submissions />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

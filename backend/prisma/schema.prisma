@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  LECTURER
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  GRADED
+  LATE
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  name      String
+  email     String  @unique
+  password  String
+  role      Role
+  avatarUrl String?
+
+  // Relations
+  courses     Course[]     @relation("LecturerCourses")
+  assignments Assignment[] @relation("LecturerAssignments")
+  enrollments Enrollment[]
+  submissions Submission[] @relation("StudentSubmissions")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Course {
+  id          Int     @id @default(autoincrement())
+  name        String
+  code        String  @unique
+  description String?
+
+  lecturerId Int
+  lecturer   User @relation("LecturerCourses", fields: [lecturerId], references: [id])
+
+  assignments Assignment[]
+  enrollments Enrollment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Enrollment {
+  id Int @id @default(autoincrement())
+
+  studentId Int
+  student   User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, courseId])
+}
+
+model Assignment {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  dueDate     DateTime
+  fileUrl     String?
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  lecturerId Int
+  lecturer   User @relation("LecturerAssignments", fields: [lecturerId], references: [id])
+
+  submissions Submission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Submission {
+  id        Int              @id @default(autoincrement())
+  fileUrl   String
+  notes     String?
+  regNumber String           @default("")
+  status    SubmissionStatus @default(SUBMITTED)
+  grade     Int?
+
+  assignmentId Int
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  studentId Int
+  student   User @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([assignmentId, studentId])
+}
