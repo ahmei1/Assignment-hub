@@ -116,7 +116,7 @@ const Register = () => {
                   type="text"
                   autoComplete="given-name"
                   required
-                  placeholder="Jane"
+                  placeholder="ahmed"
                   value={fname}
                   onChange={(e) => setFname(e.target.value)}
                   className="w-full rounded-2xl border border-gray-200 py-3.5 pl-12 pr-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
@@ -141,7 +141,7 @@ const Register = () => {
                   type="text"
                   autoComplete="family-name"
                   required
-                  placeholder="Doe"
+                  placeholder="salih"
                   value={lname}
                   onChange={(e) => setLname(e.target.value)}
                   className="w-full rounded-2xl border border-gray-200 py-3.5 pl-12 pr-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
