@@ -19,7 +19,12 @@ router.get("/", listCourses);
 router.get("/browse", requireRole("STUDENT"), browseCourses);
 router.post("/", requireRole("LECTURER"), validate(createCourseSchema), createCourse);
 router.post("/enroll", requireRole("STUDENT"), validate(enrollSchema), enroll);
-router.post("/:id/enroll", requireRole("STUDENT"), enroll);
+router.post(
+  "/:id/enroll",
+  requireRole("STUDENT"),
+  validate(enrollSchema),
+  enroll
+);
 router.get("/:id", getCourse);
 
 export default router;

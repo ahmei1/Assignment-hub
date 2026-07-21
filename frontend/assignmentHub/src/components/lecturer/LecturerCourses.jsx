@@ -9,6 +9,7 @@ import {
   Loader2,
   Plus,
   Search,
+  KeyRound,
   Users,
   X,
 } from "lucide-react";
@@ -17,7 +18,7 @@ import api from "../../lib/api";
 import Loader from "../Loader";
 import { pageVariants, staggerContainer, staggerItem } from "../../lib/motion";
 
-const emptyForm = { name: "", code: "", description: "" };
+const emptyForm = { name: "", code: "", description: "", joinPassword: "" };
 
 const LecturerCourses = () => {
   const [search, setSearch] = useState("");
@@ -71,12 +72,18 @@ const LecturerCourses = () => {
       return;
     }
 
+    if (form.joinPassword.trim().length < 4) {
+      toast.error("Join password must be at least 4 characters.");
+      return;
+    }
+
     try {
       setCreating(true);
       const response = await api.post("/courses", {
         name: form.name.trim(),
         code: form.code.trim(),
         description: form.description.trim() || undefined,
+        joinPassword: form.joinPassword.trim(),
       });
       setCourses((prev) => [response.data.data, ...prev]);
       toast.success(response.data.message || "Course created.");
@@ -238,19 +245,33 @@ const LecturerCourses = () => {
                       "No course description has been provided."}
                   </p>
 
-                  <div className="my-6 grid grid-cols-2 gap-3 border-y border-gray-100 py-5 text-sm text-gray-700">
-                    <div className="flex items-center gap-2 rounded-xl bg-gray-50 p-3">
-                      <ClipboardList size={17} className="text-[#646B9E]" />
-                      <span>
-                        <strong>{course.assignmentsCount}</strong> assignments
-                      </span>
+                  <div className="my-6 space-y-3 border-y border-gray-100 py-5 text-sm text-gray-700">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center gap-2 rounded-xl bg-gray-50 p-3">
+                        <ClipboardList size={17} className="text-[#646B9E]" />
+                        <span>
+                          <strong>{course.assignmentsCount}</strong>{" "}
+                          assignments
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 rounded-xl bg-gray-50 p-3">
+                        <Users size={17} className="text-[#646B9E]" />
+                        <span>
+                          <strong>{course.studentsCount}</strong> students
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 rounded-xl bg-gray-50 p-3">
-                      <Users size={17} className="text-[#646B9E]" />
-                      <span>
-                        <strong>{course.studentsCount}</strong> students
-                      </span>
-                    </div>
+                    {course.joinPassword && (
+                      <div className="flex items-center gap-2 rounded-xl bg-indigo-50 px-3 py-2.5 text-indigo-800">
+                        <KeyRound size={17} className="shrink-0 text-indigo-600" />
+                        <span>
+                          Join password:{" "}
+                          <strong className="font-mono tracking-wide">
+                            {course.joinPassword}
+                          </strong>
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <Link
@@ -371,6 +392,34 @@ const LecturerCourses = () => {
                     placeholder="What will students learn in this course?"
                     className="w-full resize-none rounded-2xl border border-gray-200 p-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
                   />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="course-join-password"
+                    className="mb-2 block text-sm font-semibold text-gray-700"
+                  >
+                    Join password
+                  </label>
+                  <input
+                    id="course-join-password"
+                    type="text"
+                    required
+                    minLength={4}
+                    value={form.joinPassword}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        joinPassword: e.target.value,
+                      }))
+                    }
+                    placeholder="Share this with your students"
+                    className="w-full rounded-2xl border border-gray-200 p-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
+                  />
+                  <p className="mt-2 text-xs leading-5 text-gray-500">
+                    Students must enter this password to enroll. Share it only
+                    with your class.
+                  </p>
                 </div>
 
                 <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

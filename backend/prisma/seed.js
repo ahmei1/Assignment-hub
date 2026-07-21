@@ -38,6 +38,7 @@ async function main() {
       name: "Database Administration",
       code: "CS301",
       description: "Designing, managing and optimizing relational databases.",
+      joinPassword: "db301",
       lecturerId: lecturer.id,
     },
   });
@@ -47,6 +48,7 @@ async function main() {
       name: "Web Development",
       code: "CS205",
       description: "Building modern full-stack web applications.",
+      joinPassword: "web205",
       lecturerId: lecturer.id,
     },
   });
@@ -56,6 +58,7 @@ async function main() {
       name: "Linux Fundamentals",
       code: "CS110",
       description: "Command line, permissions and shell scripting.",
+      joinPassword: "linux110",
       lecturerId: lecturer2.id,
     },
   });

@@ -9,6 +9,7 @@ import {
   Download,
   FilePlus2,
   FileText,
+  KeyRound,
   Users,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -121,6 +122,19 @@ const LecturerCourseDetails = () => {
                 </p>
               </div>
             </div>
+            {data.joinPassword && (
+              <div className="flex items-center gap-3 rounded-2xl bg-[#969DD9]/15 px-4 py-3">
+                <KeyRound size={18} className="shrink-0 text-[#B7BDF2]" />
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">
+                    Join password
+                  </p>
+                  <p className="truncate font-mono font-semibold tracking-wide text-white">
+                    {data.joinPassword}
+                  </p>
+                </div>
+              </div>
+            )}
             <Link
               to="/lecturerDashboard/createAssignment"
               state={{ courseId: data.id }}
