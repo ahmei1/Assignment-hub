@@ -1,5 +1,6 @@
 import { GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const AuthLayout = ({ children }) => {
   return (
@@ -9,15 +10,17 @@ const AuthLayout = ({ children }) => {
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#969DD9]/10 blur-3xl" />
         <div className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-[#41455E]/40 blur-3xl" />
 
-        <div className="relative flex items-center gap-3">
+        <Link to="/" className="relative flex items-center gap-3">
           <div className="rounded-2xl bg-[#969DD9]/15 p-3">
             <GraduationCap size={26} className="text-[#B7BDF2]" />
           </div>
-          <span className="text-xl font-bold text-white">Assignment Hub</span>
-        </div>
+          <span className="font-[Syne] text-xl font-bold text-white">
+            Assignment Hub
+          </span>
+        </Link>
 
         <div className="relative">
-          <h1 className="text-4xl font-bold leading-tight text-white">
+          <h1 className="font-[Syne] text-4xl font-bold leading-tight text-white">
             Manage coursework the smart way.
           </h1>
           <p className="mt-4 max-w-md leading-7 text-gray-400">
@@ -39,14 +42,17 @@ const AuthLayout = ({ children }) => {
           transition={{ duration: 0.35, ease: "easeOut" }}
           className="w-full max-w-md"
         >
-          <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
+          <Link
+            to="/"
+            className="mb-8 flex items-center justify-center gap-2 lg:hidden"
+          >
             <div className="rounded-xl bg-[#252736] p-2">
               <GraduationCap size={20} className="text-[#B7BDF2]" />
             </div>
-            <span className="text-lg font-bold text-[#252736]">
+            <span className="font-[Syne] text-lg font-bold text-[#252736]">
               Assignment Hub
             </span>
-          </div>
+          </Link>
 
           {children}
         </motion.div>
