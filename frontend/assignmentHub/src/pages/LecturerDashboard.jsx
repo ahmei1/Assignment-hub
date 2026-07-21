@@ -1,12 +1,14 @@
 import { Outlet } from "react-router-dom";
 import DashboardLayout from "../components/layouts/DashboardLayouts";
-import { useAuth } from "../context/AuthProvider";
+import { div } from "framer-motion/client";
 
 const LecturerDashboard = () => {
   return (
-    <DashboardLayout>
-      <Outlet />
-    </DashboardLayout>
+    <div className="bg-[#41455E]">
+      <DashboardLayout>
+        <Outlet />
+      </DashboardLayout>
+    </div>
   );
 };
 

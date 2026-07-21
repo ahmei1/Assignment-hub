@@ -72,6 +72,13 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
       link: "/lecturerDashboard/submissions",
       icon: BookCheck,
     },
+    {
+      id: 5,
+      name: "Profile",
+      link: "/lecturerDashboard/profile",
+      icon: UserRoundPen,
+      bottom: true,
+    },
   ];
 
   const menu = user?.role === "student" ? studentLayout : lecturerLayout;

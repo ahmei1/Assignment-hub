@@ -8,6 +8,7 @@ import {
   Eye,
   FileText,
   NotebookText,
+  Trophy,
   User,
 } from "lucide-react";
 import api from "../../lib/api";
@@ -222,6 +223,16 @@ const Assignment = () => {
                         </strong>
                       </span>
                     </div>
+                    {assignment.submissionStatus === "graded" &&
+                      assignment.grade !== null &&
+                      assignment.grade !== undefined && (
+                        <div className="flex items-center gap-3 rounded-xl bg-blue-50 px-3 py-2.5 text-blue-800">
+                          <Trophy size={17} className="text-blue-600" />
+                          <span>
+                            Grade: <strong>{assignment.grade}/100</strong>
+                          </span>
+                        </div>
+                      )}
                   </div>
 
                   <div className="mb-4">

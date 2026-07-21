@@ -1,11 +1,13 @@
 import { useState } from "react";
 
-// Deterministic, friendly-looking avatar for anyone who hasn't uploaded
-// their own picture yet — same seed always renders the same avatar, so
-// each user still looks visually distinct and consistent across sessions.
+// Deterministic, cheerful avatar for anyone who hasn't uploaded their own
+// picture yet — same seed always renders the same avatar, so each user
+// still looks visually distinct and consistent across sessions. "big-smile"
+// gives bright, colorful, grinning faces — much more joyful than a plain
+// initials circle.
 const getDefaultAvatarUrl = (user) => {
   const seed = user?.id ?? user?.email ?? user?.name ?? "guest";
-  return `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(seed)}&backgroundType=gradientLinear`;
+  return `https://api.dicebear.com/9.x/big-smile/svg?seed=${encodeURIComponent(seed)}&backgroundType=gradientLinear`;
 };
 
 const getInitials = (name = "") =>

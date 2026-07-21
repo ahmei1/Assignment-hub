@@ -15,6 +15,7 @@ import LDashboard from "../components/lecturer/LDashboard";
 import LecturerSubmissions from "../components/lecturer/LecturerSubmissions";
 import CreateAssignment from "../components/lecturer/CreateAssignment";
 import LecturerCourses from "../components/lecturer/LecturerCourses";
+import LecturerCourseDetails from "../components/lecturer/LecturerCourseDetails";
 import CourseDetails from "../components/student/CourseDetails";
 import DiscoverCourses from "../components/student/DiscoverCourses";
 import AssignmentDetail from "../components/student/AssignmentDetail";
@@ -35,13 +36,11 @@ const AppRouter = () => {
             }
           >
             <Route index element={<LDashboard />} />
-            <Route path="submissions" element={<LecturerSubmissions />} />
+            <Route path="courses" element={<LecturerCourses />} />
+            <Route path="courses/:id" element={<LecturerCourseDetails />} />
             <Route path="createAssignment" element={<CreateAssignment />} />
-            <Route path="lecturerCourses" element={<LecturerCourses />} />
-            <Route
-              path="lectureSubmissions"
-              element={<LecturerSubmissions />}
-            />
+            <Route path="submissions" element={<LecturerSubmissions />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
           <Route
             path="/studentDashboard"

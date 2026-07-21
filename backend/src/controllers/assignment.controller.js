@@ -51,7 +51,10 @@ export const listAssignments = asyncHandler(async (req, res) => {
     },
     include: {
       ...baseInclude,
-      submissions: { where: { studentId: userId }, select: { id: true, status: true } },
+      submissions: {
+        where: { studentId: userId },
+        select: { id: true, status: true, grade: true },
+      },
     },
     orderBy: { dueDate: "asc" },
   });
@@ -63,6 +66,7 @@ export const listAssignments = asyncHandler(async (req, res) => {
       return shapeAssignment(a, {
         submissionStatus: sub ? sub.status.toLowerCase() : "pending",
         submissionId: sub?.id ?? null,
+        grade: sub?.grade ?? null,
       });
     }),
   });
@@ -97,6 +101,7 @@ export const getAssignment = asyncHandler(async (req, res) => {
     extra = {
       submissionStatus: sub ? sub.status.toLowerCase() : "pending",
       submissionId: sub?.id ?? null,
+      grade: sub?.grade ?? null,
     };
   }
 

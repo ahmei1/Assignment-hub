@@ -13,6 +13,8 @@ import {
   FileCheck2,
   FileText,
   Loader2,
+  Lock,
+  Trophy,
   UploadCloud,
   User,
 } from "lucide-react";
@@ -100,6 +102,16 @@ const AssignmentDetail = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (
+      details?.submissionStatus === "graded" ||
+      mySubmission?.status === "graded"
+    ) {
+      toast.error(
+        "This submission has already been graded and can no longer be edited.",
+      );
+      return;
+    }
+
     if (!regNumber.trim()) {
       toast.error("Please enter your registration number / school ID.");
       return;
@@ -175,6 +187,10 @@ const AssignmentDetail = () => {
     new Date(details.dueDate) < new Date() &&
     details.submissionStatus === "pending";
   const alreadySubmitted = details.submissionStatus !== "pending";
+  const isGraded =
+    details.submissionStatus === "graded" || mySubmission?.status === "graded";
+  const grade =
+    mySubmission?.grade ?? details.grade ?? null;
 
   return (
     <motion.main
@@ -260,12 +276,20 @@ const AssignmentDetail = () => {
               <p className="mb-2 text-xs uppercase tracking-wide text-gray-400">
                 Submission status
               </p>
-              <span
-                className={`flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold capitalize ${statusStyle}`}
-              >
-                <StatusIcon size={14} />
-                {details.submissionStatus}
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold capitalize ${statusStyle}`}
+                >
+                  <StatusIcon size={14} />
+                  {details.submissionStatus}
+                </span>
+                {isGraded && grade !== null && (
+                  <span className="flex w-fit items-center gap-1.5 rounded-full bg-[#969DD9]/20 px-3 py-1.5 text-xs font-bold text-[#B7BDF2]">
+                    <Trophy size={14} />
+                    Grade: {grade}/100
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -312,6 +336,29 @@ const AssignmentDetail = () => {
             </p>
           ) : mySubmission ? (
             <div className="space-y-4">
+              {isGraded && grade !== null && (
+                <div className="flex items-center justify-between gap-4 rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-xl bg-blue-100 p-2.5">
+                      <Trophy size={20} className="text-blue-700" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                        Your grade
+                      </p>
+                      <p className="text-sm text-blue-800">
+                        Graded by your lecturer
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-3xl font-bold text-blue-800">
+                    {grade}
+                    <span className="text-base font-semibold text-blue-500">
+                      /100
+                    </span>
+                  </p>
+                </div>
+              )}
               <div>
                 <p className="mb-1 text-xs uppercase tracking-wide text-gray-400">
                   Registration number / School ID
@@ -346,99 +393,121 @@ const AssignmentDetail = () => {
         </section>
       )}
 
-      {/* Submission form */}
-      <section className="rounded-3xl bg-white p-6 shadow-xl sm:p-8">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="rounded-2xl bg-[#252736] p-3">
-            <UploadCloud size={24} className="text-[#B7BDF2]" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">
-              {alreadySubmitted ? "Update your submission" : "Submit your work"}
-            </h2>
-            {alreadySubmitted && (
-              <p className="text-sm text-gray-500">
-                You’ve already submitted this assignment. Uploading a new
-                file will replace your previous submission.
+      {/* Submission form — hidden once graded */}
+      {isGraded ? (
+        <section className="rounded-3xl border border-white/10 bg-[#252736] p-6 shadow-xl sm:p-8">
+          <div className="flex items-start gap-4">
+            <div className="rounded-2xl bg-white/5 p-3">
+              <Lock size={24} className="text-[#B7BDF2]" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white">
+                Submission locked
+              </h2>
+              <p className="mt-2 leading-7 text-gray-400">
+                This assignment has been graded, so you can no longer edit or
+                replace your submission. You can still review your submitted
+                file and grade above.
               </p>
-            )}
+            </div>
           </div>
-        </div>
+        </section>
+      ) : (
+        <section className="rounded-3xl bg-white p-6 shadow-xl sm:p-8">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="rounded-2xl bg-[#252736] p-3">
+              <UploadCloud size={24} className="text-[#B7BDF2]" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                {alreadySubmitted
+                  ? "Update your submission"
+                  : "Submit your work"}
+              </h2>
+              {alreadySubmitted && (
+                <p className="text-sm text-gray-500">
+                  You’ve already submitted this assignment. Uploading a new
+                  file will replace your previous submission.
+                </p>
+              )}
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label
-              htmlFor="regNumber"
-              className="mb-2 block text-sm font-semibold text-gray-700"
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label
+                htmlFor="regNumber"
+                className="mb-2 block text-sm font-semibold text-gray-700"
+              >
+                Registration number / School ID
+              </label>
+              <input
+                id="regNumber"
+                type="text"
+                value={regNumber}
+                onChange={(e) => setRegNumber(e.target.value)}
+                placeholder="e.g. REG-2024-0001"
+                className="w-full rounded-2xl border border-gray-200 p-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="notes"
+                className="mb-2 block text-sm font-semibold text-gray-700"
+              >
+                Notes (optional)
+              </label>
+              <textarea
+                id="notes"
+                rows={3}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Add any notes for your lecturer..."
+                className="w-full rounded-2xl border border-gray-200 p-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="file"
+                className="mb-2 block text-sm font-semibold text-gray-700"
+              >
+                Your file
+              </label>
+              <input
+                key={fileInputKey}
+                id="file"
+                type="file"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="block w-full rounded-2xl border border-gray-200 text-sm text-gray-600 file:mr-4 file:rounded-xl file:border-0 file:bg-[#252736] file:px-4 file:py-2.5 file:font-semibold file:text-white file:transition hover:file:bg-[#41455E]"
+              />
+              {file && (
+                <p className="mt-2 text-sm text-gray-500">
+                  Selected: <span className="font-medium">{file.name}</span>
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#252736] py-3 font-semibold text-white transition duration-300 hover:bg-[#41455E] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Registration number / School ID
-            </label>
-            <input
-              id="regNumber"
-              type="text"
-              value={regNumber}
-              onChange={(e) => setRegNumber(e.target.value)}
-              placeholder="e.g. REG-2024-0001"
-              className="w-full rounded-2xl border border-gray-200 p-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="notes"
-              className="mb-2 block text-sm font-semibold text-gray-700"
-            >
-              Notes (optional)
-            </label>
-            <textarea
-              id="notes"
-              rows={3}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Add any notes for your lecturer..."
-              className="w-full rounded-2xl border border-gray-200 p-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="file"
-              className="mb-2 block text-sm font-semibold text-gray-700"
-            >
-              Your file
-            </label>
-            <input
-              key={fileInputKey}
-              id="file"
-              type="file"
-              onChange={(e) => setFile(e.target.files[0])}
-              className="block w-full rounded-2xl border border-gray-200 text-sm text-gray-600 file:mr-4 file:rounded-xl file:border-0 file:bg-[#252736] file:px-4 file:py-2.5 file:font-semibold file:text-white file:transition hover:file:bg-[#41455E]"
-            />
-            {file && (
-              <p className="mt-2 text-sm text-gray-500">
-                Selected: <span className="font-medium">{file.name}</span>
-              </p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#252736] py-3 font-semibold text-white transition duration-300 hover:bg-[#41455E] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {submitting ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                Submitting...
-              </>
-            ) : alreadySubmitted ? (
-              "Resubmit Assignment"
-            ) : (
-              "Submit Assignment"
-            )}
-          </button>
-        </form>
-      </section>
+              {submitting ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Submitting...
+                </>
+              ) : alreadySubmitted ? (
+                "Resubmit Assignment"
+              ) : (
+                "Submit Assignment"
+              )}
+            </button>
+          </form>
+        </section>
+      )}
     </motion.main>
   );
 };

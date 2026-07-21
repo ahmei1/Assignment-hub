@@ -14,6 +14,11 @@ import dashboardRoutes from "./routes/dashboard.routes.js";
 
 const app = express();
 
+// Needed behind Render/Railway proxies so secure cookies and HTTPS URLs work.
+if (env.isProd) {
+  app.set("trust proxy", 1);
+}
+
 // Core middleware (order matters: parsers before routes).
 app.use(
   cors({

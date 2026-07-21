@@ -55,6 +55,16 @@ export const createSubmission = asyncHandler(async (req, res) => {
   });
   if (!enrolled) throw ApiError.forbidden("You are not enrolled in this course.");
 
+  // Once a lecturer has graded the work, the submission is locked.
+  const existing = await prisma.submission.findUnique({
+    where: { assignmentId_studentId: { assignmentId, studentId } },
+  });
+  if (existing?.status === "GRADED") {
+    throw ApiError.forbidden(
+      "This submission has already been graded and can no longer be edited.",
+    );
+  }
+
   const isLate = new Date() > new Date(assignment.dueDate);
   const status = isLate ? "LATE" : "SUBMITTED";
   const fileUrl = buildFileUrl(req, req.file.filename);
@@ -120,5 +130,31 @@ export const getSubmission = asyncHandler(async (req, res) => {
   sendSuccess(res, {
     message: "Submission fetched.",
     data: shapeSubmission(submission),
+  });
+});
+
+// PUT /api/submissions/:id/grade  (lecturer owner)
+export const gradeSubmission = asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  const { grade } = req.body;
+
+  const submission = await prisma.submission.findUnique({
+    where: { id },
+    include: submissionInclude,
+  });
+  if (!submission) throw ApiError.notFound("Submission not found.");
+  if (submission.assignment.lecturerId !== req.user.id) {
+    throw ApiError.forbidden("You can only grade submissions for your own assignments.");
+  }
+
+  const updated = await prisma.submission.update({
+    where: { id },
+    data: { grade, status: "GRADED" },
+    include: submissionInclude,
+  });
+
+  sendSuccess(res, {
+    message: "Submission graded.",
+    data: shapeSubmission(updated),
   });
 });

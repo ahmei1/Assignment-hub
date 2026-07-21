@@ -39,7 +39,11 @@ const Profile = () => {
     const fetchStats = async () => {
       try {
         setStatsLoading(true);
-        const response = await api.get("/dashboard/student");
+        const endpoint =
+          user?.role === "lecturer"
+            ? "/dashboard/lecturer"
+            : "/dashboard/student";
+        const response = await api.get(endpoint);
         setStats(response.data.data.stats);
       } catch {
         // Stats are a nice-to-have here; fail silently rather than
@@ -50,7 +54,7 @@ const Profile = () => {
     };
 
     fetchStats();
-  }, []);
+  }, [user?.role]);
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -118,12 +122,20 @@ const Profile = () => {
     }
   };
 
-  const statCards = [
-    { key: "courses", label: "Courses", icon: BookOpenText },
-    { key: "assignments", label: "Assignments", icon: NotebookText },
-    { key: "submitted", label: "Submitted", icon: CheckCircle2 },
-    { key: "dueSoon", label: "Due soon", icon: Clock3 },
-  ];
+  const isLecturer = user?.role === "lecturer";
+
+  const statCards = isLecturer
+    ? [
+        { key: "courses", label: "Courses", icon: BookOpenText },
+        { key: "assignments", label: "Assignments", icon: NotebookText },
+        { key: "submissions", label: "Submissions", icon: CheckCircle2 },
+      ]
+    : [
+        { key: "courses", label: "Courses", icon: BookOpenText },
+        { key: "assignments", label: "Assignments", icon: NotebookText },
+        { key: "submitted", label: "Submitted", icon: CheckCircle2 },
+        { key: "dueSoon", label: "Due soon", icon: Clock3 },
+      ];
 
   return (
     <motion.main
@@ -182,7 +194,9 @@ const Profile = () => {
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
-          className="grid grid-cols-2 gap-4 sm:grid-cols-4"
+          className={`grid grid-cols-2 gap-4 ${
+            isLecturer ? "sm:grid-cols-3" : "sm:grid-cols-4"
+          }`}
         >
           {statCards.map(({ key, label, icon: Icon }) => (
             <motion.div
