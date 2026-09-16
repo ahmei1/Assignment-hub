@@ -4,12 +4,10 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   BookOpenText,
-  CalendarDays,
   CheckCircle2,
   ClipboardList,
   GraduationCap,
   Sparkles,
-  Trophy,
 } from "lucide-react";
 import { useAuth } from "../context/AuthProvider";
 
@@ -111,7 +109,7 @@ const Landing = () => {
             </div>
           </motion.div>
 
-          {/* Joyful original illustration with useful floating status cues */}
+          {/* Professional workspace illustration */}
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
@@ -120,35 +118,16 @@ const Landing = () => {
           >
             <div className="absolute inset-x-8 bottom-4 h-20 rounded-full bg-[#969DD9]/20 blur-3xl" aria-hidden="true" />
             <motion.img
-              src="/illustrations/assignment-team.webp"
-              alt="Two students celebrating while completing assignments together"
+              src="/illustrations/assignment-workspace.webp"
+              alt="3D academic workspace with an assignment dashboard, notebooks, calendar, and completed task"
               width="1000"
               height="1000"
               fetchPriority="high"
-              animate={{ y: [0, -9, 0], rotate: [0, 0.8, 0] }}
+              animate={{ y: [0, -5, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               className="relative z-10 h-auto w-full drop-shadow-[0_28px_35px_rgba(0,0,0,0.28)]"
             />
 
-            <motion.div
-              initial={{ opacity: 0, x: -16, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ delay: 0.55, type: "spring", stiffness: 180 }}
-              className="absolute left-0 top-[18%] z-20 flex items-center gap-2 rounded-2xl border border-white/15 bg-[#252736]/85 px-3.5 py-3 text-sm font-semibold text-white shadow-xl backdrop-blur-md sm:-left-5"
-            >
-              <CalendarDays size={18} className="text-amber-300" aria-hidden="true" />
-              Deadline handled
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 16, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ delay: 0.72, type: "spring", stiffness: 180 }}
-              className="absolute bottom-[15%] right-0 z-20 flex items-center gap-2 rounded-2xl border border-white/15 bg-white/90 px-3.5 py-3 text-sm font-bold text-[#252736] shadow-xl backdrop-blur-md sm:-right-4"
-            >
-              <Trophy size={18} className="text-[#646B9E]" aria-hidden="true" />
-              Nice work! +92
-            </motion.div>
           </motion.div>
         </div>
       </section>
