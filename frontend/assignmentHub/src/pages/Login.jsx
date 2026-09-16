@@ -158,7 +158,6 @@ const Login = () => {
           Don’t have an account?{" "}
           <Link
             to="/register"
-            viewTransition
             className="font-semibold text-[#646B9E] hover:text-[#252736]"
           >
             Register

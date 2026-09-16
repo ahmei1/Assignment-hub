@@ -79,51 +79,6 @@ button:not(:disabled), [role="button"]:not([aria-disabled="true"]) { cursor: poi
   mask-image: linear-gradient(to bottom, black, transparent 90%);
 }
 
-.auth-card-transition { view-transition-name: auth-card; }
-.auth-art-transition { view-transition-name: auth-art; }
-
-::view-transition-group(auth-card),
-::view-transition-group(auth-art) {
-  animation-duration: 420ms;
-  animation-timing-function: var(--ease-out);
-}
-
-html:has(.auth-route-register)::view-transition-old(auth-card),
-html:has(.auth-route-register)::view-transition-old(auth-art) {
-  animation: auth-forward-leave 240ms ease-in both;
-}
-
-html:has(.auth-route-register)::view-transition-new(auth-card),
-html:has(.auth-route-register)::view-transition-new(auth-art) {
-  animation: auth-forward-enter 420ms var(--ease-out) both;
-}
-
-html:has(.auth-route-login)::view-transition-old(auth-card),
-html:has(.auth-route-login)::view-transition-old(auth-art) {
-  animation: auth-back-leave 240ms ease-in both;
-}
-
-html:has(.auth-route-login)::view-transition-new(auth-card),
-html:has(.auth-route-login)::view-transition-new(auth-art) {
-  animation: auth-back-enter 420ms var(--ease-out) both;
-}
-
-@keyframes auth-forward-leave {
-  to { opacity: 0; transform: translateX(-44px) scale(0.985); }
-}
-
-@keyframes auth-forward-enter {
-  from { opacity: 0; transform: translateX(52px) scale(0.985); }
-}
-
-@keyframes auth-back-leave {
-  to { opacity: 0; transform: translateX(44px) scale(0.985); }
-}
-
-@keyframes auth-back-enter {
-  from { opacity: 0; transform: translateX(-52px) scale(0.985); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -133,8 +88,4 @@ html:has(.auth-route-login)::view-transition-new(auth-art) {
     transition-duration: 0.01ms !important;
   }
   .interactive-lift:hover, .interactive-lift:active { transform: none; }
-  ::view-transition-old(auth-card),
-  ::view-transition-new(auth-card),
-  ::view-transition-old(auth-art),
-  ::view-transition-new(auth-art) { animation: none; }
 }
