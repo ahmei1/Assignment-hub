@@ -16,8 +16,8 @@ const authScenes = {
     title: "A calmer semester starts here.",
     description:
       "Join your classmates and lecturers in one joyful, organized place for every assignment.",
-    image: "/illustrations/auth-login.webp",
-    alt: "Student working confidently in their Assignment Hub workspace",
+    image: "/illustrations/assignment-team.webp",
+    alt: "Two students collaborating on assignments in Assignment Hub",
   },
 };
 
