@@ -19,13 +19,18 @@ enum SubmissionStatus {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  name      String
-  email     String  @unique
-  password  String?
-  googleId  String? @unique
-  role      Role
-  avatarUrl String?
+  id                        Int       @id @default(autoincrement())
+  name                      String
+  email                     String    @unique
+  password                  String?
+  googleId                  String?   @unique
+  role                      Role
+  avatarUrl                 String?
+  emailVerifiedAt           DateTime?
+  emailVerificationCode     String?
+  emailVerificationExpires  DateTime?
+  emailVerificationSentAt   DateTime?
+  emailVerificationAttempts Int       @default(0)
 
   // Relations
   courses     Course[]     @relation("LecturerCourses")

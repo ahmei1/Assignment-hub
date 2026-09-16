@@ -24,6 +24,15 @@ export const googleAuthSchema = z.object({
     .optional(),
 });
 
+export const verifyEmailSchema = z.object({
+  email: z.string().trim().toLowerCase().email("A valid email is required"),
+  code: z.string().trim().regex(/^\d{6}$/, "Enter the six-digit verification code"),
+});
+
+export const resendVerificationSchema = z.object({
+  email: z.string().trim().toLowerCase().email("A valid email is required"),
+});
+
 export const updateProfileSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
   email: z.string().trim().toLowerCase().email("A valid email is required"),

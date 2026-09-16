@@ -42,6 +42,11 @@ const Login = () => {
             : "/lecturerDashboard",
         );
       } catch (err) {
+        if (err.response?.data?.code === "EMAIL_NOT_VERIFIED") {
+          toast.error("Please verify your email first.");
+          navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+          return;
+        }
         toast.error(
           err.response?.data?.message ||
             "Something went wrong. Please try again.",

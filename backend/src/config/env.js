@@ -24,6 +24,8 @@ export const env = {
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
   storageDriver: process.env.STORAGE_DRIVER || "local",
   googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+  resendApiKey: process.env.RESEND_API_KEY || "",
+  emailFrom: process.env.EMAIL_FROM || "Assignment Hub <onboarding@resend.dev>",
 };
 
 if (env.isProd && env.storageDriver === "supabase") {

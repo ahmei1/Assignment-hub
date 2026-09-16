@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 const Landing = lazy(() => import("../pages/Landing"));
 const Login = lazy(() => import("../pages/Login"));
 const Register = lazy(() => import("../pages/Register"));
+const VerifyEmail = lazy(() => import("../pages/VerifyEmail"));
 const LecturerDashboard = lazy(() => import("../pages/LecturerDashboard"));
 const StudentDashboard = lazy(() => import("../pages/StudentDashboard"));
 import ProtectedRoute from "./ProtectedRoute";
@@ -29,6 +30,7 @@ const AppRouter = () => {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route
             path="/lecturerDashboard"
             element={

@@ -50,6 +50,8 @@ const authLimiter = rateLimit({
 app.use("/api", apiLimiter);
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
+app.use("/api/auth/verify-email", authLimiter);
+app.use("/api/auth/resend-verification", authLimiter);
 app.use("/api/courses/enroll", authLimiter);
 
 // Serve uploaded files statically.

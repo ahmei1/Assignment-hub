@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import crypto from "node:crypto";
 import prisma from "../lib/prisma.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -7,6 +8,14 @@ import { sendSuccess, toPublicUser } from "../utils/response.js";
 import { deleteStoredFile, STORAGE_BUCKETS, storeUploadedFile } from "../services/storage.js";
 import { OAuth2Client } from "google-auth-library";
 import { env } from "../config/env.js";
+import {
+  createVerificationCode,
+  hashVerificationCode,
+  MAX_VERIFICATION_ATTEMPTS,
+  sendVerificationEmail,
+  VERIFICATION_RESEND_COOLDOWN_MS,
+  verificationData,
+} from "../services/emailVerification.js";
 
 const SALT_ROUNDS = 10;
 const googleClient = env.googleClientId ? new OAuth2Client(env.googleClientId) : null;
@@ -41,7 +50,15 @@ export const googleAuth = asyncHandler(async (req, res) => {
     }
     user = await prisma.user.update({
       where: { id: user.id },
-      data: { googleId: payload.sub, avatarUrl: user.avatarUrl || payload.picture || null },
+      data: {
+        googleId: payload.sub,
+        avatarUrl: user.avatarUrl || payload.picture || null,
+        emailVerifiedAt: user.emailVerifiedAt || new Date(),
+        emailVerificationCode: null,
+        emailVerificationExpires: null,
+        emailVerificationSentAt: null,
+        emailVerificationAttempts: 0,
+      },
     });
   } else {
     user = await prisma.user.create({
@@ -51,6 +68,7 @@ export const googleAuth = asyncHandler(async (req, res) => {
         googleId: payload.sub,
         role: req.body.role,
         avatarUrl: payload.picture || null,
+        emailVerifiedAt: new Date(),
       },
     });
   }
@@ -73,19 +91,98 @@ export const register = asyncHandler(async (req, res) => {
   }
 
   const hashed = await bcrypt.hash(password, SALT_ROUNDS);
+  const code = createVerificationCode();
 
   const user = await prisma.user.create({
-    data: { name, email, password: hashed, role },
+    data: {
+      name,
+      email,
+      password: hashed,
+      role,
+      ...verificationData(code),
+    },
   });
 
-  const token = signToken({ id: user.id, role: user.role });
-  setAuthCookie(res, token);
+  try {
+    await sendVerificationEmail({ email: user.email, name: user.name, code });
+  } catch (error) {
+    await prisma.user.delete({ where: { id: user.id } }).catch(() => {});
+    throw error;
+  }
 
   sendSuccess(res, {
     status: 201,
-    message: "Account created successfully.",
-    data: { user: toPublicUser(user) },
+    message: "We sent a verification code to your email.",
+    data: { email: user.email, requiresVerification: true },
   });
+});
+
+// POST /api/auth/verify-email
+export const verifyEmail = asyncHandler(async (req, res) => {
+  const { email, code } = req.body;
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user || user.emailVerifiedAt || !user.emailVerificationCode) {
+    throw ApiError.badRequest("This verification request is invalid or already completed.");
+  }
+  if (user.emailVerificationAttempts >= MAX_VERIFICATION_ATTEMPTS) {
+    throw new ApiError(429, "Too many incorrect attempts. Request a new code.");
+  }
+  if (!user.emailVerificationExpires || user.emailVerificationExpires <= new Date()) {
+    throw ApiError.badRequest("This verification code has expired. Request a new one.");
+  }
+
+  const expected = Buffer.from(user.emailVerificationCode, "hex");
+  const supplied = Buffer.from(hashVerificationCode(code), "hex");
+  if (!crypto.timingSafeEqual(expected, supplied)) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerificationAttempts: { increment: 1 } },
+    });
+    throw ApiError.badRequest("The verification code is incorrect.");
+  }
+
+  const verifiedUser = await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      emailVerifiedAt: new Date(),
+      emailVerificationCode: null,
+      emailVerificationExpires: null,
+      emailVerificationSentAt: null,
+      emailVerificationAttempts: 0,
+    },
+  });
+  const token = signToken({ id: verifiedUser.id, role: verifiedUser.role });
+  setAuthCookie(res, token);
+  sendSuccess(res, {
+    message: "Email verified successfully.",
+    data: { user: toPublicUser(verifiedUser) },
+  });
+});
+
+// POST /api/auth/resend-verification
+export const resendVerification = asyncHandler(async (req, res) => {
+  const user = await prisma.user.findUnique({ where: { email: req.body.email } });
+  if (!user || user.emailVerifiedAt) {
+    return sendSuccess(res, {
+      message: "If this address needs verification, a new code has been sent.",
+    });
+  }
+
+  const elapsed = Date.now() - (user.emailVerificationSentAt?.getTime() || 0);
+  if (elapsed < VERIFICATION_RESEND_COOLDOWN_MS) {
+    const retryAfter = Math.ceil((VERIFICATION_RESEND_COOLDOWN_MS - elapsed) / 1000);
+    res.set("Retry-After", String(retryAfter));
+    throw new ApiError(429, `Please wait ${retryAfter} seconds before requesting another code.`);
+  }
+
+  const code = createVerificationCode();
+  await sendVerificationEmail({ email: user.email, name: user.name, code });
+  await prisma.user.update({
+    where: { id: user.id },
+    data: verificationData(code),
+  });
+  sendSuccess(res, { message: "A new verification code has been sent." });
 });
 
 // POST /api/auth/login
@@ -103,6 +200,13 @@ export const login = asyncHandler(async (req, res) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
     throw ApiError.unauthorized("Invalid email or password.");
+  }
+  if (!user.emailVerifiedAt) {
+    throw new ApiError(
+      403,
+      "Verify your email before logging in.",
+      "EMAIL_NOT_VERIFIED",
+    );
   }
 
   const token = signToken({ id: user.id, role: user.role });

@@ -27,7 +27,7 @@ const Register = () => {
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { user, login } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // Someone already logged in has no business seeing the register form again.
@@ -63,17 +63,9 @@ const Register = () => {
           role,
         });
 
-        // The backend already authenticates the new account (sets the
-        // session cookie), so log straight into the dashboard instead of
-        // sending them to /login to do it all over again.
-        const newUser = response.data.data.user;
-        login(newUser);
-        toast.success(response.data.message || "Account created!");
-        navigate(
-          newUser.role === "student"
-            ? "/studentDashboard"
-            : "/lecturerDashboard",
-        );
+        const verificationEmail = response.data.data.email;
+        toast.success(response.data.message || "Verification code sent!");
+        navigate(`/verify-email?email=${encodeURIComponent(verificationEmail)}`);
       } catch (error) {
         toast.error(
           error.response?.data?.message ||
