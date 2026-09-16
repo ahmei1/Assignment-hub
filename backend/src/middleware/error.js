@@ -12,10 +12,12 @@ export const notFoundHandler = (req, res, next) => {
 export const errorHandler = (err, req, res, next) => {
   let statusCode = 500;
   let message = "Something went wrong";
+  let code = null;
 
   if (err instanceof ApiError) {
     statusCode = err.statusCode;
     message = err.message;
+    code = err.code;
   } else if (err instanceof multer.MulterError) {
     statusCode = 400;
     message =
@@ -47,6 +49,7 @@ export const errorHandler = (err, req, res, next) => {
   res.status(statusCode).json({
     success: false,
     message,
+    ...(code ? { code } : {}),
     ...(env.isProd ? {} : { stack: err.stack }),
   });
 };

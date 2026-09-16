@@ -29,7 +29,10 @@ export const googleAuth = asyncHandler(async (req, res) => {
   });
 
   if (!user && !req.body.role) {
-    throw ApiError.conflict("Choose Student or Lecturer on the registration page before using Google.");
+    throw ApiError.conflict(
+      "Choose Student or Lecturer to finish creating your account.",
+      "GOOGLE_ROLE_REQUIRED",
+    );
   }
 
   if (user) {

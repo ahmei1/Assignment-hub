@@ -1,7 +1,8 @@
 export class ApiError extends Error {
-  constructor(statusCode, message) {
+  constructor(statusCode, message, code = null) {
     super(message);
     this.statusCode = statusCode;
+    this.code = code;
     this.isOperational = true;
     Error.captureStackTrace(this, this.constructor);
   }
@@ -18,7 +19,7 @@ export class ApiError extends Error {
   static notFound(msg = "Not found") {
     return new ApiError(404, msg);
   }
-  static conflict(msg = "Conflict") {
-    return new ApiError(409, msg);
+  static conflict(msg = "Conflict", code = null) {
+    return new ApiError(409, msg, code);
   }
 }
