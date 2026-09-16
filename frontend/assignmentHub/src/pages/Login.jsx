@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import api from "../lib/api";
 import toast from "react-hot-toast";
 import { Eye, EyeOff, Loader2, Lock, LogIn, Mail } from "lucide-react";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -62,6 +63,13 @@ const Login = () => {
             Log in to continue to your dashboard.
           </p>
         </div>
+
+        <GoogleAuthButton />
+        {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+          <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-widest text-gray-400">
+            <span className="h-px flex-1 bg-gray-200" />or<span className="h-px flex-1 bg-gray-200" />
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>

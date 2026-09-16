@@ -4,7 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { sendSuccess } from "../utils/response.js";
 import bcrypt from "bcrypt";
 import { getPagination } from "../utils/pagination.js";
-import { resolveStoredFileUrl } from "../services/storage.js";
+import { deleteStoredFile, resolveStoredFileUrl } from "../services/storage.js";
 
 const JOIN_PASSWORD_ROUNDS = 10;
 
@@ -159,6 +159,49 @@ export const createCourse = asyncHandler(async (req, res) => {
     message: "Course created.",
     data: shapeCourse(course, { includeJoinPassword: true }),
   });
+});
+
+// PUT /api/courses/:id (lecturer owner)
+export const updateCourse = asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  const existing = await prisma.course.findUnique({ where: { id } });
+  if (!existing) throw ApiError.notFound("Course not found.");
+  if (existing.lecturerId !== req.user.id) throw ApiError.forbidden("You do not own this course.");
+
+  const { name, code, description, joinPassword } = req.body;
+  const course = await prisma.course.update({
+    where: { id },
+    data: {
+      ...(name !== undefined && { name }),
+      ...(code !== undefined && { code }),
+      ...(description !== undefined && { description }),
+      ...(joinPassword !== undefined && {
+        joinPassword: await bcrypt.hash(joinPassword, JOIN_PASSWORD_ROUNDS),
+      }),
+    },
+    include: courseInclude,
+  });
+
+  sendSuccess(res, { message: "Course updated.", data: shapeCourse(course, { includeJoinPassword: true }) });
+});
+
+// DELETE /api/courses/:id (lecturer owner)
+export const deleteCourse = asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  const course = await prisma.course.findUnique({
+    where: { id },
+    include: { assignments: { include: { submissions: { select: { fileUrl: true } } } } },
+  });
+  if (!course) throw ApiError.notFound("Course not found.");
+  if (course.lecturerId !== req.user.id) throw ApiError.forbidden("You do not own this course.");
+
+  await prisma.course.delete({ where: { id } });
+  const files = course.assignments.flatMap((assignment) => [
+    assignment.fileUrl,
+    ...assignment.submissions.map((submission) => submission.fileUrl),
+  ]).filter(Boolean);
+  await Promise.all(files.map(deleteStoredFile));
+  sendSuccess(res, { message: "Course and its coursework were deleted." });
 });
 
 // POST /api/courses/:id/enroll  or  POST /api/courses/enroll { code }  (student)

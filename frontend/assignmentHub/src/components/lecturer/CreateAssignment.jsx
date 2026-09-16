@@ -16,17 +16,25 @@ import { pageVariants } from "../../lib/motion";
 const CreateAssignment = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const assignmentToEdit = location.state?.assignment ?? null;
+  const isEditing = Boolean(assignmentToEdit);
   const preselectedCourseId = location.state?.courseId
     ? String(location.state.courseId)
-    : "";
+    : assignmentToEdit?.courseId ? String(assignmentToEdit.courseId) : "";
 
   const [courses, setCourses] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [title, setTitle] = useState(assignmentToEdit?.title ?? "");
+  const [description, setDescription] = useState(assignmentToEdit?.description ?? "");
+  const [dueDate, setDueDate] = useState(
+    assignmentToEdit?.dueDate
+      ? new Date(new Date(assignmentToEdit.dueDate).getTime() - new Date(assignmentToEdit.dueDate).getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16)
+      : "",
+  );
   const [courseId, setCourseId] = useState(preselectedCourseId);
   const [file, setFile] = useState(null);
 
@@ -73,8 +81,10 @@ const CreateAssignment = () => {
 
     try {
       setSubmitting(true);
-      const response = await api.post("/assignments", formData);
-      toast.success(response.data.message || "Assignment created.");
+      const response = isEditing
+        ? await api.put(`/assignments/${assignmentToEdit.id}`, formData)
+        : await api.post("/assignments", formData);
+      toast.success(response.data.message || (isEditing ? "Assignment updated." : "Assignment created."));
       navigate(`/lecturerDashboard/courses/${courseId}`);
     } catch (err) {
       toast.error(
@@ -107,11 +117,12 @@ const CreateAssignment = () => {
           <FilePlus2 size={28} className="text-[#B7BDF2]" />
         </div>
         <h1 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
-          Create assignment
+          {isEditing ? "Edit assignment" : "Create assignment"}
         </h1>
         <p className="mt-2 max-w-2xl leading-7 text-gray-400">
-          Publish a new assignment for one of your courses. Students enrolled
-          in that course will see it immediately.
+          {isEditing
+            ? "Update the assignment details. Students will see the changes immediately."
+            : "Publish a new assignment for one of your courses. Students enrolled in that course will see it immediately."}
         </p>
       </section>
 
@@ -268,12 +279,12 @@ const CreateAssignment = () => {
               {submitting ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  Publishing...
+                  {isEditing ? "Saving..." : "Publishing..."}
                 </>
               ) : (
                 <>
                   <FilePlus2 size={18} />
-                  Publish assignment
+                  {isEditing ? "Save changes" : "Publish assignment"}
                 </>
               )}
             </button>

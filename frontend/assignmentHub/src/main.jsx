@@ -3,10 +3,20 @@ import "./index.css";
 import App from "./App.jsx";
 import { AuthProvider } from "./context/AuthProvider.jsx";
 import { Toaster } from "react-hot-toast";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
-createRoot(document.getElementById("root")).render(
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const app = (
   <AuthProvider>
     <App />
     <Toaster position="top-center" />
-  </AuthProvider>,
+  </AuthProvider>
+);
+
+createRoot(document.getElementById("root")).render(
+  googleClientId ? (
+    <GoogleOAuthProvider clientId={googleClientId}>{app}</GoogleOAuthProvider>
+  ) : (
+    app
+  ),
 );

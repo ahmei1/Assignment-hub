@@ -15,6 +15,7 @@ import {
   User,
   UserPlus,
 } from "lucide-react";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 
 const Register = () => {
   const [fname, setFname] = useState("");
@@ -270,6 +271,15 @@ const Register = () => {
               </button>
             </div>
           </div>
+
+          {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+            <>
+              <GoogleAuthButton role={role} />
+              <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-gray-400">
+                <span className="h-px flex-1 bg-gray-200" />or register with email<span className="h-px flex-1 bg-gray-200" />
+              </div>
+            </>
+          )}
 
           <button
             type="submit"

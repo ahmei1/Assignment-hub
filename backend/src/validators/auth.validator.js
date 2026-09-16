@@ -15,6 +15,15 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const googleAuthSchema = z.object({
+  credential: z.string().min(1, "Google credential is required"),
+  role: z
+    .string()
+    .transform((value) => value.toUpperCase())
+    .pipe(z.enum(["STUDENT", "LECTURER"]))
+    .optional(),
+});
+
 export const updateProfileSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
   email: z.string().trim().toLowerCase().email("A valid email is required"),

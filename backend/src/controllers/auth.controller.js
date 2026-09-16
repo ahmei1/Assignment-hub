@@ -5,8 +5,60 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { signToken, setAuthCookie, clearAuthCookie } from "../utils/token.js";
 import { sendSuccess, toPublicUser } from "../utils/response.js";
 import { deleteStoredFile, STORAGE_BUCKETS, storeUploadedFile } from "../services/storage.js";
+import { OAuth2Client } from "google-auth-library";
+import { env } from "../config/env.js";
 
 const SALT_ROUNDS = 10;
+const googleClient = env.googleClientId ? new OAuth2Client(env.googleClientId) : null;
+
+// POST /api/auth/google
+export const googleAuth = asyncHandler(async (req, res) => {
+  if (!googleClient) throw ApiError.badRequest("Google sign-in is not configured.");
+
+  const ticket = await googleClient.verifyIdToken({
+    idToken: req.body.credential,
+    audience: env.googleClientId,
+  });
+  const payload = ticket.getPayload();
+  if (!payload?.sub || !payload.email || !payload.email_verified) {
+    throw ApiError.unauthorized("Google could not verify this email address.");
+  }
+
+  let user = await prisma.user.findFirst({
+    where: { OR: [{ googleId: payload.sub }, { email: payload.email.toLowerCase() }] },
+  });
+
+  if (!user && !req.body.role) {
+    throw ApiError.conflict("Choose Student or Lecturer on the registration page before using Google.");
+  }
+
+  if (user) {
+    if (user.googleId && user.googleId !== payload.sub) {
+      throw ApiError.conflict("This email is already linked to another Google account.");
+    }
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { googleId: payload.sub, avatarUrl: user.avatarUrl || payload.picture || null },
+    });
+  } else {
+    user = await prisma.user.create({
+      data: {
+        name: payload.name?.trim() || payload.email.split("@")[0],
+        email: payload.email.toLowerCase(),
+        googleId: payload.sub,
+        role: req.body.role,
+        avatarUrl: payload.picture || null,
+      },
+    });
+  }
+
+  const token = signToken({ id: user.id, role: user.role });
+  setAuthCookie(res, token);
+  sendSuccess(res, {
+    message: "Signed in with Google.",
+    data: { user: toPublicUser(user) },
+  });
+});
 
 // POST /api/auth/register
 export const register = asyncHandler(async (req, res) => {
@@ -42,6 +94,9 @@ export const login = asyncHandler(async (req, res) => {
     throw ApiError.unauthorized("Invalid email or password.");
   }
 
+  if (!user.password) {
+    throw ApiError.unauthorized("This account uses Google sign-in.");
+  }
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
     throw ApiError.unauthorized("Invalid email or password.");
@@ -125,6 +180,9 @@ export const updateAvatar = asyncHandler(async (req, res) => {
 export const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
+  if (!req.user.password) {
+    throw ApiError.badRequest("This account uses Google sign-in and has no password to change.");
+  }
   const valid = await bcrypt.compare(currentPassword, req.user.password);
   if (!valid) {
     throw ApiError.unauthorized("Your current password is incorrect.");

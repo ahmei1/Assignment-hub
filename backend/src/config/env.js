@@ -23,6 +23,7 @@ export const env = {
   supabaseUrl: process.env.SUPABASE_URL || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
   storageDriver: process.env.STORAGE_DRIVER || "local",
+  googleClientId: process.env.GOOGLE_CLIENT_ID || "",
 };
 
 if (env.isProd && env.storageDriver === "supabase") {
