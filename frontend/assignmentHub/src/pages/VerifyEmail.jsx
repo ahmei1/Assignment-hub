@@ -13,16 +13,16 @@ const VerifyEmail = () => {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [cooldown, setCooldown] = useState(60);
-  const { user, login } = useAuth();
+  const { user, login, authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       navigate(user.role === "student" ? "/studentDashboard" : "/lecturerDashboard", {
         replace: true,
       });
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (cooldown <= 0) return undefined;

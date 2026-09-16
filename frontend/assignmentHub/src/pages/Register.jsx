@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthLayout from "../components/layouts/AuthLayout";
 import { useAuth } from "../context/AuthProvider";
 import api from "../lib/api";
 import toast from "react-hot-toast";
@@ -27,18 +26,18 @@ const Register = () => {
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { user } = useAuth();
+  const { user, authLoading } = useAuth();
   const navigate = useNavigate();
 
   // Someone already logged in has no business seeing the register form again.
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       navigate(
         user.role === "student" ? "/studentDashboard" : "/lecturerDashboard",
         { replace: true },
       );
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -79,7 +78,7 @@ const Register = () => {
   };
 
   return (
-    <AuthLayout>
+    <>
       <div className="w-full rounded-3xl bg-white p-8 shadow-xl sm:p-10">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900">
@@ -109,7 +108,7 @@ const Register = () => {
                   type="text"
                   autoComplete="given-name"
                   required
-                  placeholder="ahmed"
+                  placeholder="Mike"
                   value={fname}
                   onChange={(e) => setFname(e.target.value)}
                   className="w-full rounded-2xl border border-gray-200 py-3.5 pl-12 pr-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
@@ -134,7 +133,7 @@ const Register = () => {
                   type="text"
                   autoComplete="family-name"
                   required
-                  placeholder="salih"
+                  placeholder="Albert"
                   value={lname}
                   onChange={(e) => setLname(e.target.value)}
                   className="w-full rounded-2xl border border-gray-200 py-3.5 pl-12 pr-4 text-gray-800 outline-none transition focus:border-[#969DD9] focus:ring-2 focus:ring-[#969DD9]/20"
@@ -302,7 +301,7 @@ const Register = () => {
           </Link>
         </p>
       </div>
-    </AuthLayout>
+    </>
   );
 };
 

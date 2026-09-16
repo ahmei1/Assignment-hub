@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import AuthLayout from "../components/layouts/AuthLayout";
 import { useAuth } from "../context/AuthProvider";
 import { useEffect, useState } from "react";
 import api from "../lib/api";
@@ -12,18 +11,18 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user, login } = useAuth();
+  const { user, login, authLoading } = useAuth();
   const navigate = useNavigate();
 
   // Someone already logged in has no business seeing the login form again.
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       navigate(
         user.role === "student" ? "/studentDashboard" : "/lecturerDashboard",
         { replace: true },
       );
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -60,7 +59,7 @@ const Login = () => {
   };
 
   return (
-    <AuthLayout>
+    <>
       <div className="w-full rounded-3xl bg-white p-8 shadow-xl sm:p-10">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
@@ -164,7 +163,7 @@ const Login = () => {
           </Link>
         </p>
       </div>
-    </AuthLayout>
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import AuthLayout from "../components/layouts/AuthLayout";
 const Landing = lazy(() => import("../pages/Landing"));
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -23,31 +23,16 @@ const CourseDetails = lazy(() => import("../components/student/CourseDetails"));
 const DiscoverCourses = lazy(() => import("../components/student/DiscoverCourses"));
 const AssignmentDetail = lazy(() => import("../components/student/AssignmentDetail"));
 
-const authPageVariants = {
-  enter: (direction) => ({
-    opacity: 0,
-    x: direction > 0 ? 90 : -90,
-  }),
-  center: {
-    opacity: 1,
-    x: 0,
-  },
-  exit: (direction) => ({
-    opacity: 0,
-    x: direction > 0 ? -70 : 70,
-  }),
-};
-
 const AppRoutes = () => {
   const location = useLocation();
-  const isAuthSwitch = location.pathname === "/login" || location.pathname === "/register";
-  const direction = location.pathname === "/register" ? 1 : -1;
 
   const routes = (
     <Routes location={location}>
       <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route element={<AuthLayout />} >
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route
         path="/lecturerDashboard"
@@ -84,28 +69,7 @@ const AppRoutes = () => {
     </Routes>
   );
 
-  if (!isAuthSwitch) return routes;
-
-  return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F5F5FB]">
-      <AnimatePresence mode="wait" initial={false} custom={direction}>
-        <motion.div
-          key={location.pathname}
-          custom={direction}
-          variants={authPageVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{
-            x: { duration: 0.34, ease: [0.22, 1, 0.36, 1] },
-            opacity: { duration: 0.2 },
-          }}
-        >
-          {routes}
-        </motion.div>
-      </AnimatePresence>
-    </div>
-  );
+  return routes;
 };
 
 const AppRouter = () => {

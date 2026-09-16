@@ -14,17 +14,17 @@ import {
 import { useAuth } from "../context/AuthProvider";
 
 const Landing = () => {
-  const { user } = useAuth();
+  const { user, authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       navigate(
         user.role === "student" ? "/studentDashboard" : "/lecturerDashboard",
         { replace: true },
       );
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   return (
     <div className="min-h-screen bg-[#F4F5FA] text-[#252736]">

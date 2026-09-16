@@ -1,6 +1,6 @@
 import { GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 const authScenes = {
   login: {
@@ -28,10 +28,10 @@ const AuthLayout = ({ children }) => {
 
   return (
     <div
-      className={`auth-route-${isRegister ? "register" : "login"} flex min-h-screen flex-col bg-[#F5F5FB] lg:flex-row`}
+      className={`auth-route-${isRegister ? "register" : "login"} flex min-h-screen flex-col bg-[#F5F5FB] auth-switch-shell`}
     >
       {/* Branding panel — hidden on small screens to keep the form front and center */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#303348] via-[#252736] to-[#1c1e2b] p-10 lg:flex lg:w-[46%] xl:p-14">
+      <div className="auth-brand-panel relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#303348] via-[#252736] to-[#1c1e2b] p-10 lg:flex lg:w-1/2 xl:p-14">
         <div className="brand-grid pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#969DD9]/10 blur-3xl" />
         <div className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-[#41455E]/40 blur-3xl" />
@@ -80,19 +80,24 @@ const AuthLayout = ({ children }) => {
           </motion.div>
         </div>
 
+        <Link to={isRegister ? "/login" : "/register"} className="relative mx-auto mb-6 rounded-full border border-white/40 px-8 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+          {isRegister ? "Already a member? Log in" : "New here? Create an account"}
+        </Link>
+
         <p className="relative text-sm text-gray-500">
           © {new Date().getFullYear()} Assignment Hub
         </p>
       </div>
 
       {/* Form panel */}
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-[#F5F5FB] px-4 py-10 sm:px-8">
+      <div className="auth-form-panel relative flex items-center justify-center bg-[#F5F5FB] px-4 py-10 sm:px-8">
         <div className="pointer-events-none absolute right-[-8rem] top-[-8rem] h-72 w-72 rounded-full bg-[#969DD9]/12 blur-3xl" aria-hidden="true" />
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="auth-card-transition w-full max-w-md"
+          key={pathname}
+          className="auth-card-transition w-full max-w-lg"
         >
           <Link
             to="/"
@@ -106,7 +111,7 @@ const AuthLayout = ({ children }) => {
             </span>
           </Link>
 
-          {children}
+          {children || <Outlet />}
         </motion.div>
       </div>
     </div>
