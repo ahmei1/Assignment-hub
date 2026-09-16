@@ -8,6 +8,7 @@ import {
   BookSearch,
   UserRoundPen,
   X,
+  GraduationCap,
 } from "lucide-react";
 
 const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
@@ -86,32 +87,43 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
   return (
     <>
       {/* Backdrop — mobile only, dims the page while the drawer is open */}
-      <div
+      <button
+        type="button"
         onClick={onClose}
-        aria-hidden="true"
-        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 lg:hidden ${
+        aria-label="Close navigation menu"
+        tabIndex={isOpen ? 0 : -1}
+        className={`fixed inset-0 z-40 bg-[#11131d]/70 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
           isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
-      <div
-        className={`fixed top-0 bottom-0 left-0 z-50 flex h-screen w-64 shrink-0 flex-col bg-[#252736] p-4 text-[#969DD9] transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:bottom-auto lg:translate-x-0 ${
+      <aside
+        aria-label="Dashboard navigation"
+        className={`fixed top-0 bottom-0 left-0 z-50 flex h-screen w-[17rem] shrink-0 flex-col border-r border-white/8 bg-[#202230]/95 p-4 text-[#B7BDF2] shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:bottom-auto lg:translate-x-0 lg:shadow-none ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="mb-12 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Assignment Hub</h2>
+        <div className="mb-9 flex items-center justify-between px-1 pt-1">
+          <div className="flex items-center gap-3">
+            <span className="grid h-11 w-11 place-items-center rounded-2xl border border-[#969DD9]/20 bg-[#969DD9]/12 shadow-inner">
+              <GraduationCap size={23} aria-hidden="true" />
+            </span>
+            <div>
+              <h2 className="font-[Syne] text-lg font-bold leading-tight text-white">Assignment Hub</h2>
+              <p className="mt-0.5 text-xs capitalize text-white/45">{user?.role} workspace</p>
+            </div>
+          </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="rounded-lg p-1.5 text-gray-400 transition hover:bg-white/10 hover:text-white lg:hidden"
+            className="grid h-11 w-11 place-items-center rounded-xl text-gray-400 transition hover:bg-white/10 hover:text-white lg:hidden"
           >
             <X size={22} />
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
+        <nav className="flex flex-1 flex-col gap-1.5 overflow-y-auto" aria-label="Primary">
           {menu.map((item) => {
             const Icon = item.icon;
 
@@ -126,27 +138,32 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
                 }
                 className={({ isActive }) =>
                   `
-                flex items-center gap-3
-                p-3
-                rounded-2xl
+                group relative flex min-h-12 items-center gap-3
+                px-3.5 py-3
+                rounded-xl
                 transition-all
                 duration-200
                 ${
                   isActive
-                    ? "bg-[#41455E] text-white"
-                    : "hover:bg-[#41455E]"
+                    ? "bg-[#969DD9]/16 text-white shadow-[inset_0_0_0_1px_rgba(183,189,242,0.12)]"
+                    : "text-white/60 hover:bg-white/6 hover:text-white"
                 }
                 ${item.bottom ? "mt-auto" : ""}
                 `
                 }
               >
-                <Icon size={20} />
-                <span>{item.name}</span>
+                <Icon size={20} aria-hidden="true" />
+                <span className="font-medium">{item.name}</span>
               </NavLink>
             );
           })}
+        </nav>
+
+        <div className="mt-4 rounded-2xl border border-white/8 bg-white/[0.035] p-3.5">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/35">Signed in as</p>
+          <p className="mt-1 truncate text-sm font-semibold text-white/80">{user?.email}</p>
         </div>
-      </div>
+      </aside>
     </>
   );
 };

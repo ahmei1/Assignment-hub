@@ -1,35 +1,91 @@
 @import "tailwindcss";
 
-body {
-  font-family: "Figtree", system-ui, sans-serif;
+:root {
+  color-scheme: light;
+  font-family: "Figtree", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --brand-950: #1c1e2b;
+  --brand-900: #252736;
+  --brand-800: #303348;
+  --brand-700: #41455e;
+  --brand-600: #555a78;
+  --brand-500: #646b9e;
+  --brand-400: #969dd9;
+  --brand-300: #b7bdf2;
+  --surface: #f4f5fa;
+  --surface-raised: #ffffff;
+  --text: #252736;
+  --text-muted: #62677d;
+  --border: rgba(37, 39, 54, 0.1);
+  --ring: #969dd9;
+  --shadow-sm: 0 1px 2px rgba(28, 30, 43, 0.06), 0 8px 24px rgba(28, 30, 43, 0.05);
+  --shadow-lg: 0 24px 60px rgba(28, 30, 43, 0.16);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.container {
-  width: 100%;
-  height: 100%;
-  --s: 194px; /* control the size */
-  --c1: #f6edb3;
-  --c2: #acc4a3;
-
-  --_l: #0000 calc(25% / 3), var(--c1) 0 25%, #0000 0;
-  --_g: conic-gradient(from 120deg at 50% 87.5%, var(--c1) 120deg, #0000 0);
-
-  background: var(--_g), var(--_g) 0 calc(var(--s) / 2),
-    conic-gradient(from 180deg at 75%, var(--c2) 60deg, #0000 0),
-    conic-gradient(from 60deg at 75% 75%, var(--c1) 0 60deg, #0000 0),
-    linear-gradient(150deg, var(--_l)) 0 calc(var(--s) / 2),
-    conic-gradient(
-      at 25% 25%,
-      #0000 50%,
-      var(--c2) 0 240deg,
-      var(--c1) 0 300deg,
-      var(--c2) 0
-    ),
-    linear-gradient(-150deg, var(--_l)) #55897c /* third color here */;
-  background-size: calc(0.866 * var(--s)) var(--s);
-}
+* { box-sizing: border-box; }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
   -webkit-overflow-scrolling: touch;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--surface);
+  color: var(--text);
+}
+
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button, a { touch-action: manipulation; }
+button:not(:disabled), [role="button"]:not([aria-disabled="true"]) { cursor: pointer; }
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--ring) 80%, white);
+  outline-offset: 3px;
+}
+
+::selection { background: rgba(150, 157, 217, 0.35); color: var(--brand-950); }
+
+.app-shell-bg {
+  background:
+    radial-gradient(circle at 85% -10%, rgba(150, 157, 217, 0.18), transparent 28rem),
+    linear-gradient(145deg, var(--brand-700), var(--brand-800) 52%, var(--brand-950));
+}
+
+.glass-panel {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(37, 39, 54, 0.78);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(18px);
+}
+
+.interactive-lift {
+  transition: transform 220ms var(--ease-out), border-color 180ms ease, box-shadow 220ms ease, background-color 180ms ease;
+}
+
+.interactive-lift:hover { transform: translateY(-3px); }
+.interactive-lift:active { transform: translateY(-1px) scale(0.99); }
+
+.brand-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black, transparent 90%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .interactive-lift:hover, .interactive-lift:active { transform: none; }
 }

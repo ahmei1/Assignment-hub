@@ -111,9 +111,10 @@ const SDashboard = () => {
       initial="hidden"
       animate="visible"
       variants={pageVariants}
-      className="min-h-full space-y-8 p-5 sm:p-8"
+      className="mx-auto min-h-full max-w-[1600px] space-y-8 p-4 sm:p-6 lg:p-8"
     >
-      <section className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#303348] to-[#252736] shadow-xl">
+      <section className="glass-panel relative overflow-hidden rounded-3xl">
+        <div className="brand-grid pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-[#B7BDF2]">
@@ -151,7 +152,7 @@ const SDashboard = () => {
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
         >
           {stats.map((stat) => {
             const Icon = stat.icon;
@@ -160,7 +161,7 @@ const SDashboard = () => {
               <motion.article
                 key={stat.id}
                 variants={staggerItem}
-                className="rounded-3xl border border-white/10 bg-[#252736] p-6 shadow-lg transition duration-300 hover:-translate-y-1 hover:border-white/20"
+                className="interactive-lift rounded-3xl border border-white/10 bg-[#252736]/90 p-6 shadow-lg hover:border-[#969DD9]/35 hover:shadow-[0_20px_45px_rgba(20,21,32,0.24)]"
               >
                 <div className="flex items-start justify-between">
                   <div className={`rounded-2xl p-3 ${stat.background}`}>

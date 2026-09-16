@@ -27,7 +27,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-[#F4F5FA] text-[#252736]">
       {/* Nav */}
-      <header className="absolute inset-x-0 top-0 z-20">
+      <header className="absolute inset-x-0 top-0 z-20 border-b border-white/[0.06] bg-[#252736]/35 backdrop-blur-lg">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="rounded-xl bg-white/10 p-2 backdrop-blur-sm">
@@ -41,13 +41,13 @@ const Landing = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               to="/login"
-              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
+              className="inline-flex min-h-11 items-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
             >
               Log in
             </Link>
             <Link
               to="/register"
-              className="rounded-xl bg-[#969DD9] px-4 py-2.5 text-sm font-semibold text-[#252736] transition hover:bg-[#B7BDF2]"
+              className="interactive-lift inline-flex min-h-11 items-center rounded-xl bg-[#969DD9] px-4 py-2.5 text-sm font-semibold text-[#252736] shadow-lg shadow-[#969DD9]/10 hover:bg-[#B7BDF2]"
             >
               Sign up
             </Link>
@@ -91,7 +91,7 @@ const Landing = () => {
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 to="/register"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#969DD9] px-6 py-3.5 font-semibold text-[#252736] transition hover:bg-[#B7BDF2]"
+                className="interactive-lift inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#969DD9] px-6 py-3.5 font-semibold text-[#252736] shadow-xl shadow-black/15 hover:bg-[#B7BDF2]"
               >
                 Get started
                 <ArrowRight size={18} />

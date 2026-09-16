@@ -4,9 +4,10 @@ import { Link } from "react-router-dom";
 
 const AuthLayout = ({ children }) => {
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row">
+    <div className="flex min-h-screen flex-col bg-[#F5F5FB] lg:flex-row">
       {/* Branding panel — hidden on small screens to keep the form front and center */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#303348] to-[#252736] p-10 lg:flex lg:w-1/2">
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#303348] via-[#252736] to-[#1c1e2b] p-10 lg:flex lg:w-[46%] xl:p-14">
+        <div className="brand-grid pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#969DD9]/10 blur-3xl" />
         <div className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-[#41455E]/40 blur-3xl" />
 
@@ -20,7 +21,8 @@ const AuthLayout = ({ children }) => {
         </Link>
 
         <div className="relative">
-          <h1 className="font-[Syne] text-4xl font-bold leading-tight text-white">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-[#969DD9]">Your academic command center</p>
+          <h1 className="max-w-xl font-[Syne] text-4xl font-bold leading-tight text-white xl:text-5xl">
             Manage coursework the smart way.
           </h1>
           <p className="mt-4 max-w-md leading-7 text-gray-400">
@@ -35,7 +37,8 @@ const AuthLayout = ({ children }) => {
       </div>
 
       {/* Form panel */}
-      <div className="flex flex-1 items-center justify-center bg-[#F5F5FB] px-4 py-10 sm:px-8">
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-[#F5F5FB] px-4 py-10 sm:px-8">
+        <div className="pointer-events-none absolute right-[-8rem] top-[-8rem] h-72 w-72 rounded-full bg-[#969DD9]/12 blur-3xl" aria-hidden="true" />
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

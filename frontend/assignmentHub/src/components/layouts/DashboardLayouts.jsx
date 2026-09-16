@@ -9,8 +9,11 @@ const DashboardLayout = ({ children }) => {
     <div className="flex min-h-screen">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex min-h-screen flex-1 flex-col overflow-x-hidden">
-        <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      <div className="min-w-0 flex min-h-screen flex-1 flex-col overflow-x-hidden">
+        <Navbar
+          menuOpen={sidebarOpen}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
 
         {/* Each page renders its own <main>, so this stays a plain div
             to avoid invalid nested <main> elements. */}

@@ -3,7 +3,7 @@ import DashboardLayout from "../components/layouts/DashboardLayouts";
 
 const LecturerDashboard = () => {
   return (
-    <div className="bg-[#41455E]">
+    <div className="app-shell-bg">
       <DashboardLayout>
         <Outlet />
       </DashboardLayout>
