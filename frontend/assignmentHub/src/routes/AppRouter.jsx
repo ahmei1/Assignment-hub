@@ -24,7 +24,7 @@ const AssignmentDetail = lazy(() => import("../components/student/AssignmentDeta
 
 const AppRouter = () => {
   return (
-    <Suspense fallback={<Loader />}>
+    <Suspense fallback={<Loader fullScreen label="Opening Assignment Hub" />}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />

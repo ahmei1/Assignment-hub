@@ -1,8 +1,12 @@
 import { GraduationCap } from "lucide-react";
 
-const Loader = ({ label = "Loading your workspace" }) => (
+const Loader = ({ label = "Loading this section", fullScreen = false }) => (
   <div
-    className="fixed inset-0 z-[100] grid min-h-screen place-items-center bg-[#F4F5FA]/95 px-6 backdrop-blur-sm"
+    className={`${
+      fullScreen
+        ? "fixed inset-0 z-[100] min-h-screen bg-[#F4F5FA]/95 backdrop-blur-sm"
+        : "min-h-[calc(100dvh-4.5rem)] w-full bg-white/[0.025]"
+    } grid place-items-center px-6`}
     role="status"
     aria-live="polite"
   >
@@ -14,7 +18,9 @@ const Loader = ({ label = "Loading your workspace" }) => (
           <GraduationCap size={27} className="text-[#B7BDF2]" aria-hidden="true" />
         </span>
       </div>
-      <p className="mt-5 text-sm font-semibold text-[#41455E]">{label}</p>
+      <p className={`mt-5 text-sm font-semibold ${fullScreen ? "text-[#41455E]" : "text-[#D5D8F0]"}`}>
+        {label}
+      </p>
       <span className="sr-only">Please wait</span>
     </div>
   </div>

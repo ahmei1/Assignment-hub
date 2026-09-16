@@ -59,7 +59,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={provider}>
-      {authLoading ? <Loader /> : children}
+      {authLoading ? <Loader fullScreen label="Loading your workspace" /> : children}
     </AuthContext.Provider>
   );
 }

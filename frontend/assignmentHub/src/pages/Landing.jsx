@@ -8,6 +8,8 @@ import {
   CheckCircle2,
   ClipboardList,
   GraduationCap,
+  Sparkles,
+  Trophy,
 } from "lucide-react";
 import { useAuth } from "../context/AuthProvider";
 
@@ -77,11 +79,15 @@ const Landing = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#B7BDF2]/15 bg-[#969DD9]/10 px-4 py-2 text-sm font-semibold text-[#D5D8F0]">
+              <Sparkles size={16} className="text-amber-300" aria-hidden="true" />
+              Study smarter. Smile more.
+            </div>
             <p className="font-[Syne] text-5xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
               Assignment Hub
             </p>
             <h1 className="mt-6 max-w-xl text-2xl font-semibold leading-snug text-[#D5D8F0] sm:text-3xl">
-              Coursework, deadlines, and grades — finally in one place.
+              Less stress. More done. A little more fun.
             </h1>
             <p className="mt-4 max-w-lg text-base leading-7 text-gray-400 sm:text-lg">
               A calm workspace for students and lecturers to publish
@@ -105,95 +111,44 @@ const Landing = () => {
             </div>
           </motion.div>
 
-          {/* Dominant product visual */}
+          {/* Joyful original illustration with useful floating status cues */}
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.12, ease: "easeOut" }}
-            className="relative"
+            className="relative mx-auto w-full max-w-[34rem]"
           >
-            <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#2c2f42]/80 p-5 shadow-2xl backdrop-blur-sm sm:p-6">
-              <div className="mb-5 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#969DD9]">
-                    This week
-                  </p>
-                  <p className="mt-1 font-[Syne] text-xl font-bold text-white">
-                    Your deadlines
-                  </p>
-                </div>
-                <CalendarDays size={22} className="text-[#B7BDF2]" />
-              </div>
+            <div className="absolute inset-x-8 bottom-4 h-20 rounded-full bg-[#969DD9]/20 blur-3xl" aria-hidden="true" />
+            <motion.img
+              src="/illustrations/assignment-team.webp"
+              alt="Two students celebrating while completing assignments together"
+              width="1000"
+              height="1000"
+              fetchPriority="high"
+              animate={{ y: [0, -9, 0], rotate: [0, 0.8, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="relative z-10 h-auto w-full drop-shadow-[0_28px_35px_rgba(0,0,0,0.28)]"
+            />
 
-              <div className="space-y-3">
-                {[
-                  {
-                    title: "Algorithms Lab 3",
-                    course: "CS201",
-                    status: "Due Fri",
-                    tone: "bg-amber-400/15 text-amber-200",
-                  },
-                  {
-                    title: "Essay draft",
-                    course: "ENG110",
-                    status: "Submitted",
-                    tone: "bg-emerald-400/15 text-emerald-200",
-                  },
-                  {
-                    title: "Database quiz prep",
-                    course: "CS305",
-                    status: "Graded 92",
-                    tone: "bg-sky-400/15 text-sky-200",
-                  },
-                ].map((item, index) => (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, x: 12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{
-                      duration: 0.35,
-                      delay: 0.28 + index * 0.08,
-                      ease: "easeOut",
-                    }}
-                    className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.04] px-4 py-3.5"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold text-white">
-                        {item.title}
-                      </p>
-                      <p className="mt-0.5 text-sm text-gray-400">
-                        {item.course}
-                      </p>
-                    </div>
-                    <span
-                      className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-bold ${item.tone}`}
-                    >
-                      {item.status}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
+            <motion.div
+              initial={{ opacity: 0, x: -16, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: 0.55, type: "spring", stiffness: 180 }}
+              className="absolute left-0 top-[18%] z-20 flex items-center gap-2 rounded-2xl border border-white/15 bg-[#252736]/85 px-3.5 py-3 text-sm font-semibold text-white shadow-xl backdrop-blur-md sm:-left-5"
+            >
+              <CalendarDays size={18} className="text-amber-300" aria-hidden="true" />
+              Deadline handled
+            </motion.div>
 
-              <div className="mt-5 grid grid-cols-3 gap-3">
-                {[
-                  { label: "Courses", value: "4" },
-                  { label: "Due soon", value: "2" },
-                  { label: "Graded", value: "7" },
-                ].map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="rounded-2xl bg-[#969DD9]/10 px-3 py-3 text-center"
-                  >
-                    <p className="font-[Syne] text-xl font-bold text-white">
-                      {stat.value}
-                    </p>
-                    <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-gray-400">
-                      {stat.label}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, x: 16, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: 0.72, type: "spring", stiffness: 180 }}
+              className="absolute bottom-[15%] right-0 z-20 flex items-center gap-2 rounded-2xl border border-white/15 bg-white/90 px-3.5 py-3 text-sm font-bold text-[#252736] shadow-xl backdrop-blur-md sm:-right-4"
+            >
+              <Trophy size={18} className="text-[#646B9E]" aria-hidden="true" />
+              Nice work! +92
+            </motion.div>
           </motion.div>
         </div>
       </section>
