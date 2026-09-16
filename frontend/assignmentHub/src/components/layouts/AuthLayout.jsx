@@ -1,8 +1,30 @@
 import { GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+
+const authScenes = {
+  login: {
+    eyebrow: "Welcome back",
+    title: "Your study space missed you.",
+    description:
+      "Pick up where you left off and turn today’s deadlines into tomorrow’s done list.",
+    image: "/illustrations/auth-login.webp",
+    alt: "Student happily returning to their coursework",
+  },
+  register: {
+    eyebrow: "Start something brilliant",
+    title: "A calmer semester starts here.",
+    description:
+      "Join your classmates and lecturers in one joyful, organized place for every assignment.",
+    image: "/illustrations/auth-register.webp",
+    alt: "Students celebrating a new Assignment Hub account",
+  },
+};
 
 const AuthLayout = ({ children }) => {
+  const { pathname } = useLocation();
+  const scene = pathname === "/register" ? authScenes.register : authScenes.login;
+
   return (
     <div className="flex min-h-screen flex-col bg-[#F5F5FB] lg:flex-row">
       {/* Branding panel — hidden on small screens to keep the form front and center */}
@@ -11,7 +33,7 @@ const AuthLayout = ({ children }) => {
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#969DD9]/10 blur-3xl" />
         <div className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-[#41455E]/40 blur-3xl" />
 
-        <Link to="/" className="relative flex items-center gap-3">
+        <Link to="/" className="relative z-10 flex items-center gap-3">
           <div className="rounded-2xl bg-[#969DD9]/15 p-3">
             <GraduationCap size={26} className="text-[#B7BDF2]" />
           </div>
@@ -20,15 +42,39 @@ const AuthLayout = ({ children }) => {
           </span>
         </Link>
 
-        <div className="relative">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-[#969DD9]">Your academic command center</p>
-          <h1 className="max-w-xl font-[Syne] text-4xl font-bold leading-tight text-white xl:text-5xl">
-            Manage coursework the smart way.
-          </h1>
-          <p className="mt-4 max-w-md leading-7 text-gray-400">
-            Track courses, assignments, and deadlines in one place — built
-            for students and lecturers alike.
-          </p>
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center py-6 text-center">
+          <motion.img
+            key={scene.image}
+            src={scene.image}
+            alt={scene.alt}
+            width="720"
+            height="900"
+            initial={{ opacity: 0, scale: 0.94, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: [0, -6, 0] }}
+            transition={{
+              opacity: { duration: 0.4 },
+              scale: { duration: 0.5, ease: "easeOut" },
+              y: { duration: 5.5, repeat: Infinity, ease: "easeInOut" },
+            }}
+            className="auth-art-transition h-auto max-h-[45vh] w-full max-w-[390px] object-contain drop-shadow-[0_28px_38px_rgba(10,11,20,0.32)]"
+          />
+          <motion.div
+            key={scene.title}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.08 }}
+            className="mt-2"
+          >
+            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[#969DD9]">
+              {scene.eyebrow}
+            </p>
+            <h1 className="mx-auto max-w-xl font-[Syne] text-4xl font-bold leading-tight text-white xl:text-[2.75rem]">
+              {scene.title}
+            </h1>
+            <p className="mx-auto mt-3 max-w-md leading-7 text-gray-400">
+              {scene.description}
+            </p>
+          </motion.div>
         </div>
 
         <p className="relative text-sm text-gray-500">
@@ -43,7 +89,7 @@ const AuthLayout = ({ children }) => {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="w-full max-w-md"
+          className="auth-card-transition w-full max-w-md"
         >
           <Link
             to="/"

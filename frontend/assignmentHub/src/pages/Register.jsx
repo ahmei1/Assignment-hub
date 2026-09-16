@@ -296,6 +296,7 @@ const Register = () => {
           Already have an account?{" "}
           <Link
             to="/login"
+            viewTransition
             className="font-semibold text-[#646B9E] hover:text-[#252736]"
           >
             Login

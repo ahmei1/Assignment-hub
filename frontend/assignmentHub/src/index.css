@@ -79,6 +79,33 @@ button:not(:disabled), [role="button"]:not([aria-disabled="true"]) { cursor: poi
   mask-image: linear-gradient(to bottom, black, transparent 90%);
 }
 
+.auth-card-transition { view-transition-name: auth-card; }
+.auth-art-transition { view-transition-name: auth-art; }
+
+::view-transition-group(auth-card),
+::view-transition-group(auth-art) {
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(auth-card),
+::view-transition-old(auth-art) {
+  animation: auth-leave 220ms ease both;
+}
+
+::view-transition-new(auth-card),
+::view-transition-new(auth-art) {
+  animation: auth-enter 420ms var(--ease-out) both;
+}
+
+@keyframes auth-leave {
+  to { opacity: 0; transform: translateX(-12px) scale(0.99); }
+}
+
+@keyframes auth-enter {
+  from { opacity: 0; transform: translateX(18px) scale(0.99); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -88,4 +115,8 @@ button:not(:disabled), [role="button"]:not([aria-disabled="true"]) { cursor: poi
     transition-duration: 0.01ms !important;
   }
   .interactive-lift:hover, .interactive-lift:active { transform: none; }
+  ::view-transition-old(auth-card),
+  ::view-transition-new(auth-card),
+  ::view-transition-old(auth-art),
+  ::view-transition-new(auth-art) { animation: none; }
 }
