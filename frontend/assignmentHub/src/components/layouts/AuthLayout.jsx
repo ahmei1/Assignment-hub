@@ -23,10 +23,13 @@ const authScenes = {
 
 const AuthLayout = ({ children }) => {
   const { pathname } = useLocation();
-  const scene = pathname === "/register" ? authScenes.register : authScenes.login;
+  const isRegister = pathname === "/register";
+  const scene = isRegister ? authScenes.register : authScenes.login;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F5F5FB] lg:flex-row">
+    <div
+      className={`auth-route-${isRegister ? "register" : "login"} flex min-h-screen flex-col bg-[#F5F5FB] lg:flex-row`}
+    >
       {/* Branding panel — hidden on small screens to keep the form front and center */}
       <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#303348] via-[#252736] to-[#1c1e2b] p-10 lg:flex lg:w-[46%] xl:p-14">
         <div className="brand-grid pointer-events-none absolute inset-0" aria-hidden="true" />
