@@ -1,6 +1,5 @@
 import { Outlet } from "react-router-dom";
 import DashboardLayout from "../components/layouts/DashboardLayouts";
-import { div } from "framer-motion/client";
 
 const LecturerDashboard = () => {
   return (

@@ -8,18 +8,18 @@ const StudentDashboard = lazy(() => import("../pages/StudentDashboard"));
 import ProtectedRoute from "./ProtectedRoute";
 import NotFound from "../pages/NotFound";
 import Loader from "../components/Loader";
-import Assignment from "../components/student/Assignment";
-import Profile from "../components/student/Profile";
-import SDashboard from "../components/student/SDashboard";
-import MyCourses from "../components/student/MyCourses";
-import LDashboard from "../components/lecturer/LDashboard";
-import LecturerSubmissions from "../components/lecturer/LecturerSubmissions";
-import CreateAssignment from "../components/lecturer/CreateAssignment";
-import LecturerCourses from "../components/lecturer/LecturerCourses";
-import LecturerCourseDetails from "../components/lecturer/LecturerCourseDetails";
-import CourseDetails from "../components/student/CourseDetails";
-import DiscoverCourses from "../components/student/DiscoverCourses";
-import AssignmentDetail from "../components/student/AssignmentDetail";
+const Assignment = lazy(() => import("../components/student/Assignment"));
+const Profile = lazy(() => import("../components/student/Profile"));
+const SDashboard = lazy(() => import("../components/student/SDashboard"));
+const MyCourses = lazy(() => import("../components/student/MyCourses"));
+const LDashboard = lazy(() => import("../components/lecturer/LDashboard"));
+const LecturerSubmissions = lazy(() => import("../components/lecturer/LecturerSubmissions"));
+const CreateAssignment = lazy(() => import("../components/lecturer/CreateAssignment"));
+const LecturerCourses = lazy(() => import("../components/lecturer/LecturerCourses"));
+const LecturerCourseDetails = lazy(() => import("../components/lecturer/LecturerCourseDetails"));
+const CourseDetails = lazy(() => import("../components/student/CourseDetails"));
+const DiscoverCourses = lazy(() => import("../components/student/DiscoverCourses"));
+const AssignmentDetail = lazy(() => import("../components/student/AssignmentDetail"));
 
 const AppRouter = () => {
   return (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "../../lib/api";
@@ -46,7 +46,7 @@ const AssignmentDetail = () => {
   const [mySubmission, setMySubmission] = useState(null);
   const [submissionLoading, setSubmissionLoading] = useState(false);
 
-  const fetchAssignmentDetails = async () => {
+  const fetchAssignmentDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get(`/assignments/${id}`);
@@ -56,12 +56,12 @@ const AssignmentDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAssignmentDetails();
-  }, [id]);
+  }, [fetchAssignmentDetails]);
 
   // Once we know the id of the student's existing submission (if any), fetch
   // its full details so they can review/download what they submitted before

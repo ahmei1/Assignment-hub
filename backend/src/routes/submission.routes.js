@@ -9,6 +9,7 @@ import { authenticate } from "../middleware/auth.js";
 import { requireRole } from "../middleware/role.js";
 import { validate } from "../middleware/validate.js";
 import { upload } from "../config/multer.js";
+import { validateDocumentUpload } from "../middleware/upload.js";
 import {
   createSubmissionSchema,
   gradeSubmissionSchema,
@@ -22,6 +23,7 @@ router.post(
   "/",
   requireRole("STUDENT"),
   upload.single("file"),
+  validateDocumentUpload,
   validate(createSubmissionSchema),
   createSubmission
 );

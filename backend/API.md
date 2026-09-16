@@ -9,11 +9,11 @@ All API routes are prefixed with `/api`.
   (On errors, `data` is omitted and `message` describes the problem.)
 - **Auth uses an httpOnly cookie.** After `login`/`register` the server sets a `token` cookie.
   From the frontend you only need `axios` configured with `withCredentials: true` — no manual
-  token handling. (A `token` is also returned in the body as a fallback for tools like Postman;
-  it can be sent as `Authorization: Bearer <token>`.)
+  token handling. Browser login responses do not expose the token.
 - `role` is always returned **lowercase** (`"student"` / `"lecturer"`) to match the frontend.
 - Dates are ISO 8601 strings.
-- File uploads use `multipart/form-data`. Uploaded files are served from `/uploads/<filename>`.
+- File uploads use `multipart/form-data`. Production files are stored in Supabase Storage;
+  private files are returned as short-lived signed URLs.
   Allowed types: pdf, doc(x), txt, zip, rar, ppt(x), xls(x), png, jpg(jpeg). Max size: 10 MB.
 
 ---
@@ -35,8 +35,7 @@ All API routes are prefixed with `/api`.
   "success": true,
   "message": "Logged in successfully.",
   "data": {
-    "user": { "id": 3, "name": "John Doe", "email": "student@test.com", "role": "student" },
-    "token": "eyJhbGci..."
+    "user": { "id": 3, "name": "John Doe", "email": "student@test.com", "role": "student" }
   }
 }
 ```
@@ -50,9 +49,9 @@ All API routes are prefixed with `/api`.
 | GET | `/` | any | Student → enrolled courses; Lecturer → owned courses |
 | GET | `/browse?search=` | student | Courses the student is NOT yet enrolled in (search by code/name) |
 | GET | `/:id` | member | Course detail + its assignments |
-| POST | `/` | lecturer | `{ name, code, description? }` |
-| POST | `/enroll` | student | `{ code }` or `{ courseId }` |
-| POST | `/:id/enroll` | student | enroll by id in URL |
+| POST | `/` | lecturer | `{ name, code, description?, joinPassword }` |
+| POST | `/enroll` | student | `{ code, joinPassword }` or `{ courseId, joinPassword }` |
+| POST | `/:id/enroll` | student | `{ joinPassword }` with course id in URL |
 
 **Course card shape** (used by `MyCourses.jsx`):
 ```json
@@ -62,6 +61,9 @@ All API routes are prefixed with `/api`.
 ```
 
 `GET /:id` also includes an `assignments: [{ id, title, description, dueDate, fileUrl, submissionsCount }]` array.
+
+Join passwords are stored as one-way hashes and are never returned by the API.
+List endpoints accept `page` and `limit`; limits are capped at 100 records.
 
 ---
 

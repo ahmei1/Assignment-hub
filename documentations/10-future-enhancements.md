@@ -1,6 +1,6 @@
 <!-- Future Enhancements -->
 
--Assignment grading
+-Written feedback and grading rubrics
 -Email notifications
 -AI plagiarism detection
 -AI-generated feedback

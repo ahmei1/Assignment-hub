@@ -51,6 +51,8 @@ model Course {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([lecturerId, createdAt])
 }
 
 model Enrollment {
@@ -65,6 +67,7 @@ model Enrollment {
   createdAt DateTime @default(now())
 
   @@unique([studentId, courseId])
+  @@index([courseId])
 }
 
 model Assignment {
@@ -84,6 +87,9 @@ model Assignment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([courseId, dueDate])
+  @@index([lecturerId, dueDate])
 }
 
 model Submission {
@@ -104,4 +110,6 @@ model Submission {
   updatedAt   DateTime @updatedAt
 
   @@unique([assignmentId, studentId])
+  @@index([studentId, submittedAt])
+  @@index([assignmentId, submittedAt])
 }

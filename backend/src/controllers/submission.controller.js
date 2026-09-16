@@ -2,11 +2,12 @@ import prisma from "../lib/prisma.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { sendSuccess } from "../utils/response.js";
-import { buildFileUrl } from "../utils/file.js";
+import { getPagination } from "../utils/pagination.js";
+import { deleteStoredFile, resolveStoredFileUrl, STORAGE_BUCKETS, storeUploadedFile } from "../services/storage.js";
 
-const shapeSubmission = (s) => ({
+const shapeSubmission = async (s) => ({
   id: s.id,
-  fileUrl: s.fileUrl,
+  fileUrl: await resolveStoredFileUrl(s.fileUrl),
   notes: s.notes,
   regNumber: s.regNumber,
   status: s.status.toLowerCase(),
@@ -67,19 +68,32 @@ export const createSubmission = asyncHandler(async (req, res) => {
 
   const isLate = new Date() > new Date(assignment.dueDate);
   const status = isLate ? "LATE" : "SUBMITTED";
-  const fileUrl = buildFileUrl(req, req.file.filename);
-
-  const submission = await prisma.submission.upsert({
-    where: { assignmentId_studentId: { assignmentId, studentId } },
-    update: { fileUrl, notes, regNumber, status },
-    create: { assignmentId, studentId, fileUrl, notes, regNumber, status },
-    include: submissionInclude,
+  const fileUrl = await storeUploadedFile(req, req.file, {
+    bucket: STORAGE_BUCKETS.submissions,
+    prefix: `assignment-${assignmentId}/student-${studentId}`,
   });
+
+  let submission;
+  try {
+    submission = await prisma.submission.upsert({
+      where: { assignmentId_studentId: { assignmentId, studentId } },
+      update: { fileUrl, notes, regNumber, status },
+      create: { assignmentId, studentId, fileUrl, notes, regNumber, status },
+      include: submissionInclude,
+    });
+  } catch (error) {
+    await deleteStoredFile(fileUrl);
+    throw error;
+  }
+
+  if (existing?.fileUrl && existing.fileUrl !== submission.fileUrl) {
+    await deleteStoredFile(existing.fileUrl);
+  }
 
   sendSuccess(res, {
     status: 201,
     message: isLate ? "Submitted (after the deadline)." : "Submitted successfully.",
-    data: shapeSubmission(submission),
+    data: await shapeSubmission(submission),
   });
 });
 
@@ -88,6 +102,7 @@ export const createSubmission = asyncHandler(async (req, res) => {
 export const listSubmissions = asyncHandler(async (req, res) => {
   const { id: userId, role } = req.user;
   const assignmentId = req.query.assignmentId ? Number(req.query.assignmentId) : undefined;
+  const { skip, limit } = getPagination(req.query);
 
   let where;
   if (role === "LECTURER") {
@@ -103,11 +118,13 @@ export const listSubmissions = asyncHandler(async (req, res) => {
     where,
     include: submissionInclude,
     orderBy: { submittedAt: "desc" },
+    skip,
+    take: limit,
   });
 
   sendSuccess(res, {
     message: "Submissions fetched.",
-    data: submissions.map(shapeSubmission),
+    data: await Promise.all(submissions.map(shapeSubmission)),
   });
 });
 
@@ -129,7 +146,7 @@ export const getSubmission = asyncHandler(async (req, res) => {
 
   sendSuccess(res, {
     message: "Submission fetched.",
-    data: shapeSubmission(submission),
+    data: await shapeSubmission(submission),
   });
 });
 
@@ -155,6 +172,6 @@ export const gradeSubmission = asyncHandler(async (req, res) => {
 
   sendSuccess(res, {
     message: "Submission graded.",
-    data: shapeSubmission(updated),
+    data: await shapeSubmission(updated),
   });
 });

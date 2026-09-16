@@ -11,6 +11,7 @@ import {
 import { authenticate } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { uploadAvatar } from "../config/multer.js";
+import { validateAvatarUpload } from "../middleware/upload.js";
 import {
   registerSchema,
   loginSchema,
@@ -29,6 +30,7 @@ router.put(
   "/me/avatar",
   authenticate,
   uploadAvatar.single("avatar"),
+  validateAvatarUpload,
   updateAvatar,
 );
 router.put(

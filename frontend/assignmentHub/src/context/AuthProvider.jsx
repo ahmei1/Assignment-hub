@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import api from "../lib/api";
 import Loader from "../components/Loader";
 
@@ -52,12 +52,10 @@ export function AuthProvider({ children }) {
     setUser(userData);
   };
 
-  const provider = {
-    user,
-    login,
-    logout,
-    updateUser,
-  };
+  const provider = useMemo(
+    () => ({ user, login, logout, updateUser }),
+    [user],
+  );
 
   return (
     <AuthContext.Provider value={provider}>

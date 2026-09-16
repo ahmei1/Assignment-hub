@@ -2,9 +2,13 @@ import prisma from "../lib/prisma.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { sendSuccess } from "../utils/response.js";
+import bcrypt from "bcrypt";
+import { getPagination } from "../utils/pagination.js";
+import { resolveStoredFileUrl } from "../services/storage.js";
+
+const JOIN_PASSWORD_ROUNDS = 10;
 
 // Shapes a course record to match the frontend course cards.
-// joinPassword is only included for the owning lecturer — never for students.
 const shapeCourse = (course, { includeJoinPassword = false } = {}) => ({
   id: course.id,
   name: course.name,
@@ -15,7 +19,7 @@ const shapeCourse = (course, { includeJoinPassword = false } = {}) => ({
   assignmentsCount: course._count?.assignments ?? 0,
   studentsCount: course._count?.enrollments ?? 0,
   createdAt: course.createdAt,
-  ...(includeJoinPassword ? { joinPassword: course.joinPassword } : {}),
+  ...(includeJoinPassword ? { hasJoinPassword: Boolean(course.joinPassword) } : {}),
 });
 
 const courseInclude = {
@@ -27,6 +31,7 @@ const courseInclude = {
 // Student -> enrolled courses; Lecturer -> courses they own.
 export const listCourses = asyncHandler(async (req, res) => {
   const { role, id } = req.user;
+  const { skip, limit } = getPagination(req.query);
 
   let courses;
   if (role === "LECTURER") {
@@ -34,12 +39,16 @@ export const listCourses = asyncHandler(async (req, res) => {
       where: { lecturerId: id },
       include: courseInclude,
       orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
     });
   } else {
     courses = await prisma.course.findMany({
       where: { enrollments: { some: { studentId: id } } },
       include: courseInclude,
       orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
     });
   }
 
@@ -56,6 +65,7 @@ export const listCourses = asyncHandler(async (req, res) => {
 export const browseCourses = asyncHandler(async (req, res) => {
   const { id } = req.user;
   const { search } = req.query;
+  const { skip, limit } = getPagination(req.query, { defaultLimit: 24 });
 
   const courses = await prisma.course.findMany({
     where: {
@@ -71,6 +81,8 @@ export const browseCourses = asyncHandler(async (req, res) => {
     },
     include: courseInclude,
     orderBy: { name: "asc" },
+    skip,
+    take: limit,
   });
 
   sendSuccess(res, {
@@ -114,14 +126,14 @@ export const getCourse = asyncHandler(async (req, res) => {
     message: "Course fetched.",
     data: {
       ...shapeCourse(course, { includeJoinPassword: isOwner }),
-      assignments: course.assignments.map((a) => ({
+      assignments: await Promise.all(course.assignments.map(async (a) => ({
         id: a.id,
         title: a.title,
         description: a.description,
         dueDate: a.dueDate,
-        fileUrl: a.fileUrl,
+        fileUrl: await resolveStoredFileUrl(a.fileUrl),
         submissionsCount: a._count.submissions,
-      })),
+      }))),
     },
   });
 });
@@ -129,13 +141,14 @@ export const getCourse = asyncHandler(async (req, res) => {
 // POST /api/courses  (lecturer)
 export const createCourse = asyncHandler(async (req, res) => {
   const { name, code, description, joinPassword } = req.body;
+  const joinPasswordHash = await bcrypt.hash(joinPassword, JOIN_PASSWORD_ROUNDS);
 
   const course = await prisma.course.create({
     data: {
       name,
       code,
       description,
-      joinPassword,
+      joinPassword: joinPasswordHash,
       lecturerId: req.user.id,
     },
     include: courseInclude,
@@ -171,8 +184,21 @@ export const enroll = asyncHandler(async (req, res) => {
 
   if (!course) throw ApiError.notFound("Course not found.");
 
-  if (course.joinPassword !== joinPassword.trim()) {
+  const suppliedPassword = joinPassword.trim();
+  const isHash = course.joinPassword.startsWith("$2");
+  const passwordMatches = isHash
+    ? await bcrypt.compare(suppliedPassword, course.joinPassword)
+    : course.joinPassword === suppliedPassword;
+  if (!passwordMatches) {
     throw ApiError.forbidden("Incorrect course join password.");
+  }
+
+  // Transparently upgrade courses created before join-password hashing was added.
+  if (!isHash) {
+    await prisma.course.update({
+      where: { id: course.id },
+      data: { joinPassword: await bcrypt.hash(suppliedPassword, JOIN_PASSWORD_ROUNDS) },
+    });
   }
 
   const already = await prisma.enrollment.findUnique({

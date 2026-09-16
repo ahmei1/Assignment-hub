@@ -10,6 +10,7 @@ import { authenticate } from "../middleware/auth.js";
 import { requireRole } from "../middleware/role.js";
 import { validate } from "../middleware/validate.js";
 import { upload } from "../config/multer.js";
+import { validateDocumentUpload } from "../middleware/upload.js";
 import {
   createAssignmentSchema,
   updateAssignmentSchema,
@@ -26,6 +27,7 @@ router.post(
   "/",
   requireRole("LECTURER"),
   upload.single("file"),
+  validateDocumentUpload,
   validate(createAssignmentSchema),
   createAssignment
 );
@@ -34,6 +36,7 @@ router.put(
   "/:id",
   requireRole("LECTURER"),
   upload.single("file"),
+  validateDocumentUpload,
   validate(updateAssignmentSchema),
   updateAssignment
 );

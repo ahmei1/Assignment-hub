@@ -16,6 +16,11 @@ async function main() {
   await prisma.user.deleteMany();
 
   const password = await bcrypt.hash("password123", 10);
+  const joinPasswords = {
+    db: await bcrypt.hash("db301", 10),
+    web: await bcrypt.hash("web205", 10),
+    linux: await bcrypt.hash("linux110", 10),
+  };
 
   const lecturer = await prisma.user.create({
     data: { name: "Dr. Smith", email: "lecturer@test.com", password, role: "LECTURER" },
@@ -38,7 +43,7 @@ async function main() {
       name: "Database Administration",
       code: "CS301",
       description: "Designing, managing and optimizing relational databases.",
-      joinPassword: "db301",
+      joinPassword: joinPasswords.db,
       lecturerId: lecturer.id,
     },
   });
@@ -48,7 +53,7 @@ async function main() {
       name: "Web Development",
       code: "CS205",
       description: "Building modern full-stack web applications.",
-      joinPassword: "web205",
+      joinPassword: joinPasswords.web,
       lecturerId: lecturer.id,
     },
   });
@@ -58,7 +63,7 @@ async function main() {
       name: "Linux Fundamentals",
       code: "CS110",
       description: "Command line, permissions and shell scripting.",
-      joinPassword: "linux110",
+      joinPassword: joinPasswords.linux,
       lecturerId: lecturer2.id,
     },
   });

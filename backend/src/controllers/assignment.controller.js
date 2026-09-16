@@ -2,14 +2,15 @@ import prisma from "../lib/prisma.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { sendSuccess } from "../utils/response.js";
-import { buildFileUrl } from "../utils/file.js";
+import { getPagination } from "../utils/pagination.js";
+import { deleteStoredFile, resolveStoredFileUrl, STORAGE_BUCKETS, storeUploadedFile } from "../services/storage.js";
 
-const shapeAssignment = (a, extra = {}) => ({
+const shapeAssignment = async (a, extra = {}) => ({
   id: a.id,
   title: a.title,
   description: a.description,
   dueDate: a.dueDate,
-  fileUrl: a.fileUrl,
+  fileUrl: await resolveStoredFileUrl(a.fileUrl),
   courseId: a.courseId,
   course: a.course ? { id: a.course.id, name: a.course.name, code: a.course.code } : undefined,
   lecturer: a.lecturer ? { id: a.lecturer.id, name: a.lecturer.name } : undefined,
@@ -28,18 +29,21 @@ const baseInclude = {
 export const listAssignments = asyncHandler(async (req, res) => {
   const { id: userId, role } = req.user;
   const courseId = req.query.courseId ? Number(req.query.courseId) : undefined;
+  const { skip, limit } = getPagination(req.query);
 
   if (role === "LECTURER") {
     const assignments = await prisma.assignment.findMany({
       where: { lecturerId: userId, ...(courseId ? { courseId } : {}) },
       include: { ...baseInclude, _count: { select: { submissions: true } } },
       orderBy: { dueDate: "asc" },
+      skip,
+      take: limit,
     });
     return sendSuccess(res, {
       message: "Assignments fetched.",
-      data: assignments.map((a) =>
+      data: await Promise.all(assignments.map((a) =>
         shapeAssignment(a, { submissionsCount: a._count.submissions })
-      ),
+      )),
     });
   }
 
@@ -57,18 +61,20 @@ export const listAssignments = asyncHandler(async (req, res) => {
       },
     },
     orderBy: { dueDate: "asc" },
+    skip,
+    take: limit,
   });
 
   sendSuccess(res, {
     message: "Assignments fetched.",
-    data: assignments.map((a) => {
+    data: await Promise.all(assignments.map((a) => {
       const sub = a.submissions[0];
       return shapeAssignment(a, {
         submissionStatus: sub ? sub.status.toLowerCase() : "pending",
         submissionId: sub?.id ?? null,
         grade: sub?.grade ?? null,
       });
-    }),
+    })),
   });
 });
 
@@ -107,7 +113,7 @@ export const getAssignment = asyncHandler(async (req, res) => {
 
   sendSuccess(res, {
     message: "Assignment fetched.",
-    data: shapeAssignment(assignment, extra),
+    data: await shapeAssignment(assignment, extra),
   });
 });
 
@@ -121,22 +127,25 @@ export const createAssignment = asyncHandler(async (req, res) => {
     throw ApiError.forbidden("You can only add assignments to your own courses.");
   }
 
-  const assignment = await prisma.assignment.create({
-    data: {
-      title,
-      description,
-      dueDate,
-      courseId,
-      lecturerId: req.user.id,
-      fileUrl: buildFileUrl(req, req.file?.filename),
-    },
-    include: baseInclude,
+  const fileUrl = await storeUploadedFile(req, req.file, {
+    bucket: STORAGE_BUCKETS.assignments,
+    prefix: `lecturer-${req.user.id}/course-${courseId}`,
   });
+  let assignment;
+  try {
+    assignment = await prisma.assignment.create({
+      data: { title, description, dueDate, courseId, lecturerId: req.user.id, fileUrl },
+      include: baseInclude,
+    });
+  } catch (error) {
+    await deleteStoredFile(fileUrl);
+    throw error;
+  }
 
   sendSuccess(res, {
     status: 201,
     message: "Assignment created.",
-    data: shapeAssignment(assignment),
+    data: await shapeAssignment(assignment),
   });
 });
 
@@ -158,34 +167,52 @@ export const updateAssignment = asyncHandler(async (req, res) => {
     }
   }
 
-  const assignment = await prisma.assignment.update({
-    where: { id },
-    data: {
-      ...(title !== undefined && { title }),
-      ...(description !== undefined && { description }),
-      ...(dueDate !== undefined && { dueDate }),
-      ...(courseId !== undefined && { courseId }),
-      ...(req.file ? { fileUrl: buildFileUrl(req, req.file.filename) } : {}),
-    },
-    include: baseInclude,
+  const replacementFileUrl = await storeUploadedFile(req, req.file, {
+    bucket: STORAGE_BUCKETS.assignments,
+    prefix: `lecturer-${req.user.id}/course-${courseId ?? existing.courseId}`,
   });
+  let assignment;
+  try {
+    assignment = await prisma.assignment.update({
+      where: { id },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(description !== undefined && { description }),
+        ...(dueDate !== undefined && { dueDate }),
+        ...(courseId !== undefined && { courseId }),
+        ...(replacementFileUrl ? { fileUrl: replacementFileUrl } : {}),
+      },
+      include: baseInclude,
+    });
+  } catch (error) {
+    await deleteStoredFile(replacementFileUrl);
+    throw error;
+  }
+
+  if (replacementFileUrl && existing.fileUrl) await deleteStoredFile(existing.fileUrl);
 
   sendSuccess(res, {
     message: "Assignment updated.",
-    data: shapeAssignment(assignment),
+    data: await shapeAssignment(assignment),
   });
 });
 
 // DELETE /api/assignments/:id  (lecturer owner)
 export const deleteAssignment = asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
-  const existing = await prisma.assignment.findUnique({ where: { id } });
+  const existing = await prisma.assignment.findUnique({
+    where: { id },
+    include: { submissions: { select: { fileUrl: true } } },
+  });
   if (!existing) throw ApiError.notFound("Assignment not found.");
   if (existing.lecturerId !== req.user.id) {
     throw ApiError.forbidden("You do not own this assignment.");
   }
 
   await prisma.assignment.delete({ where: { id } });
+
+  await deleteStoredFile(existing.fileUrl);
+  await Promise.all(existing.submissions.map((submission) => deleteStoredFile(submission.fileUrl)));
 
   sendSuccess(res, { message: "Assignment deleted." });
 });

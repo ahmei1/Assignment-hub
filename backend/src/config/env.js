@@ -3,10 +3,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const required = ["DATABASE_URL", "JWT_SECRET"];
-for (const key of required) {
-  if (!process.env[key]) {
-    console.warn(`[env] Missing required environment variable: ${key}`);
-  }
+const missing = required.filter((key) => !process.env[key]);
+if (missing.length > 0 && process.env.NODE_ENV === "production") {
+  throw new Error(`[env] Missing required environment variables: ${missing.join(", ")}`);
+}
+for (const key of missing) {
+  console.warn(`[env] Missing required environment variable: ${key}`);
 }
 
 export const env = {
@@ -16,4 +18,19 @@ export const env = {
   clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
   nodeEnv: process.env.NODE_ENV || "development",
   isProd: process.env.NODE_ENV === "production",
+  uploadDir: process.env.UPLOAD_DIR || "uploads",
+  maxUploadMb: Number(process.env.MAX_UPLOAD_MB || 10),
+  supabaseUrl: process.env.SUPABASE_URL || "",
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+  storageDriver: process.env.STORAGE_DRIVER || "local",
 };
+
+if (env.isProd && env.storageDriver === "supabase") {
+  const missingStorage = [
+    ["SUPABASE_URL", env.supabaseUrl],
+    ["SUPABASE_SERVICE_ROLE_KEY", env.supabaseServiceRoleKey],
+  ].filter(([, value]) => !value);
+  if (missingStorage.length) {
+    throw new Error(`[env] Supabase storage is enabled but missing: ${missingStorage.map(([key]) => key).join(", ")}`);
+  }
+}

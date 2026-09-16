@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { signToken, setAuthCookie, clearAuthCookie } from "../utils/token.js";
 import { sendSuccess, toPublicUser } from "../utils/response.js";
-import { buildFileUrl } from "../utils/file.js";
+import { deleteStoredFile, STORAGE_BUCKETS, storeUploadedFile } from "../services/storage.js";
 
 const SALT_ROUNDS = 10;
 
@@ -29,7 +29,7 @@ export const register = asyncHandler(async (req, res) => {
   sendSuccess(res, {
     status: 201,
     message: "Account created successfully.",
-    data: { user: toPublicUser(user), token },
+    data: { user: toPublicUser(user) },
   });
 });
 
@@ -52,7 +52,7 @@ export const login = asyncHandler(async (req, res) => {
 
   sendSuccess(res, {
     message: "Logged in successfully.",
-    data: { user: toPublicUser(user), token },
+    data: { user: toPublicUser(user) },
   });
 });
 
@@ -96,12 +96,24 @@ export const updateProfile = asyncHandler(async (req, res) => {
 export const updateAvatar = asyncHandler(async (req, res) => {
   if (!req.file) throw ApiError.badRequest("An image file is required.");
 
-  const avatarUrl = buildFileUrl(req, req.file.filename);
-
-  const user = await prisma.user.update({
-    where: { id: req.user.id },
-    data: { avatarUrl },
+  const avatarUrl = await storeUploadedFile(req, req.file, {
+    bucket: STORAGE_BUCKETS.avatars,
+    prefix: `user-${req.user.id}`,
+    isPublic: true,
   });
+
+  let user;
+  try {
+    user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { avatarUrl },
+    });
+  } catch (error) {
+    await deleteStoredFile(avatarUrl);
+    throw error;
+  }
+
+  await deleteStoredFile(req.user.avatarUrl);
 
   sendSuccess(res, {
     message: "Profile picture updated.",
@@ -124,5 +136,7 @@ export const changePassword = asyncHandler(async (req, res) => {
     data: { password: hashed },
   });
 
-  sendSuccess(res, { message: "Password changed successfully." });
+  clearAuthCookie(res);
+
+  sendSuccess(res, { message: "Password changed. Please log in again." });
 });

@@ -13,12 +13,14 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import api from "../../lib/api";
 import { useAuth } from "../../context/AuthProvider";
+import { useNavigate } from "react-router-dom";
 import Avatar from "../Avatar";
 import Loader from "../Loader";
 import { pageVariants, staggerContainer, staggerItem } from "../../lib/motion";
 
 const Profile = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -113,6 +115,8 @@ const Profile = () => {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      logout();
+      navigate("/login", { replace: true });
     } catch (err) {
       toast.error(
         err.response?.data?.message || "Couldn’t change your password.",

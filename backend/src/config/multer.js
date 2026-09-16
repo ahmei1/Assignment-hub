@@ -2,8 +2,9 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
+import { env } from "./env.js";
 
-const UPLOAD_DIR = path.resolve("uploads");
+const UPLOAD_DIR = path.resolve(env.uploadDir);
 
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -46,7 +47,7 @@ const fileFilter = (req, file, cb) => {
 export const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  limits: { fileSize: env.maxUploadMb * 1024 * 1024, files: 1, fields: 10 },
 });
 
 const AVATAR_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
@@ -67,7 +68,7 @@ const avatarFileFilter = (req, file, cb) => {
 export const uploadAvatar = multer({
   storage,
   fileFilter: avatarFileFilter,
-  limits: { fileSize: 3 * 1024 * 1024 }, // 3 MB
+  limits: { fileSize: 3 * 1024 * 1024, files: 1, fields: 5 },
 });
 
 export { UPLOAD_DIR };

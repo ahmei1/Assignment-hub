@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/assignmentHub/package-lock.json
+      - name: Install backend
+        working-directory: backend
+        run: npm ci
+      - name: Test backend
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+          JWT_SECRET: ci-only-secret
+        run: npm run check
+      - name: Install frontend
+        working-directory: frontend/assignmentHub
+        run: npm ci
+      - name: Lint frontend
+        working-directory: frontend/assignmentHub
+        run: npm run lint
+      - name: Build frontend
+        working-directory: frontend/assignmentHub
+        run: npm run build

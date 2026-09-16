@@ -43,7 +43,7 @@ export const studentDashboard = asyncHandler(async (req, res) => {
 
   // Upcoming deadlines table (next 5 not-yet-past assignments).
   const deadlines = assignments
-    .filter((a) => a.dueDate >= now || !submittedIds.has(a.id))
+    .filter((a) => a.dueDate >= now && !submittedIds.has(a.id))
     .slice(0, 5)
     .map((a) => ({
       id: a.id,
