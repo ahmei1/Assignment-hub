@@ -118,8 +118,8 @@ const Landing = () => {
           >
             <div className="absolute inset-x-8 bottom-4 h-20 rounded-full bg-[#969DD9]/20 blur-3xl" aria-hidden="true" />
             <motion.img
-              src="/illustrations/assignment-workspace.webp"
-              alt="3D academic workspace with an assignment dashboard, notebooks, calendar, and completed task"
+              src="/illustrations/auth-register.webp"
+              alt="Two students celebrating their new Assignment Hub workspace"
               width="1000"
               height="1000"
               fetchPriority="high"
