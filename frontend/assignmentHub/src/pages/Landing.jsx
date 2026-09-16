@@ -128,6 +128,26 @@ const Landing = () => {
               className="relative z-10 h-auto w-full drop-shadow-[0_28px_35px_rgba(0,0,0,0.28)]"
             />
 
+            <motion.div
+              initial={{ opacity: 0, x: -14, scale: 0.92 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: 0.5, type: "spring", stiffness: 170 }}
+              className="absolute left-0 top-[24%] z-20 rounded-2xl border border-white/15 bg-[#252736]/90 px-4 py-3 text-white shadow-xl backdrop-blur-md sm:-left-5"
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#B7BDF2]">Submission rate</p>
+              <p className="mt-0.5 text-xl font-bold">99% <span className="text-sm font-medium text-[#D5D8F0]">submitted</span></p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 14, scale: 0.92 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: 0.66, type: "spring", stiffness: 170 }}
+              className="absolute bottom-[21%] right-0 z-20 rounded-2xl border border-white/20 bg-white/95 px-4 py-3 text-[#252736] shadow-xl backdrop-blur-md sm:-right-4"
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#646B9E]">This week</p>
+              <p className="mt-0.5 text-sm font-bold">12 assignments <span className="text-[#35a986]">on track</span></p>
+            </motion.div>
+
           </motion.div>
         </div>
       </section>
